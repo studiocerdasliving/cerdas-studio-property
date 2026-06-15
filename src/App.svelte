@@ -80,5 +80,6 @@
     <Route path="/studio/proyek"><Proyek /></Route>
     <Route path="/studio/upload"><Upload /></Route>
     <Route path="/studio/design"><Design /></Route>
+    <Route path="/design"><Design /></Route>
   </div>
 </Router>
