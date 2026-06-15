@@ -1,0 +1,1 @@
+{"id":"floorlamp","name":"Floor Lamp","category":"lighting","subcategory":"floor","icon":"💡","builder":"buildFloorLamp","module":"../../furniture.js","dimensions":{"w":0.4,"d":0.4,"h":1.65},"mountType":"floor","tags":["lampu","lantai","lighting"]}

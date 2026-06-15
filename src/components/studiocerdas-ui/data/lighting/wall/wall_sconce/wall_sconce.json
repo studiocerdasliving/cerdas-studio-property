@@ -1,0 +1,1 @@
+{"id":"wallsconce","name":"Wall Sconce","category":"lighting","subcategory":"wall","icon":"🕯️","builder":"buildWallSconce","module":"../../furniture2.js","dimensions":{"w":0.3,"d":0.16,"h":0.3},"mountType":"wall","wallY":1.8,"tags":["lampu","dinding","sconce","lighting"]}

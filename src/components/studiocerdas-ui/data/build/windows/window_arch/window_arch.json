@@ -1,0 +1,1 @@
+{"id":"archwindow","name":"Arch Window","category":"build","subcategory":"windows","icon":"🪟","builder":"buildArchWindow","module":"../../furniture2.js","dimensions":{"w":1.0,"d":0.15,"h":1.3},"mountType":"wall","wallY":0.6,"tags":["jendela","lengkung","arch","build"]}

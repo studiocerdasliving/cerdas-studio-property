@@ -1,0 +1,1 @@
+{"id":"bookshelf","name":"Bookshelf","category":"furniture","subcategory":"storage","icon":"📚","builder":"buildBookshelf","module":"../../furniture.js","dimensions":{"w":0.9,"d":0.35,"h":1.8},"tags":["rak","buku","storage"]}

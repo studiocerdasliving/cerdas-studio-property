@@ -1,0 +1,1 @@
+{"id":"tablelamp","name":"Table Lamp","category":"lighting","subcategory":"table","icon":"🕯️","builder":"buildTableLamp","module":"../../furniture.js","dimensions":{"w":0.35,"d":0.35,"h":0.5},"mountType":"floor","tags":["lampu","meja","lighting"]}

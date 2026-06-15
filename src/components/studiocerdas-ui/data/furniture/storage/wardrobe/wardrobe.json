@@ -1,0 +1,1 @@
+{"id":"wardrobe","name":"Wardrobe","category":"furniture","subcategory":"storage","icon":"🪚","builder":"buildWardrobe","module":"../../furniture.js","dimensions":{"w":1.4,"d":0.55,"h":2.14},"tags":["lemari","pakaian","storage"]}

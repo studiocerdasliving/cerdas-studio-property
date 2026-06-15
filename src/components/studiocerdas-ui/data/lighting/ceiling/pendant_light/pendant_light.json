@@ -1,0 +1,1 @@
+{"id":"pendant","name":"Pendant Light","category":"lighting","subcategory":"ceiling","icon":"🔦","builder":"buildPendantLight","module":"../../furniture2.js","dimensions":{"w":0.45,"d":0.45,"h":1.0},"mountType":"ceiling","tags":["lampu","gantung","pendant","lighting"]}

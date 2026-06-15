@@ -1,0 +1,1 @@
+{"id":"tvcabinet","name":"TV Cabinet","category":"furniture","subcategory":"storage","icon":"📦","builder":"buildTV_Cabinet","module":"../../furniture.js","dimensions":{"w":1.5,"d":0.45,"h":0.5},"tags":["lemari","tv","storage"]}

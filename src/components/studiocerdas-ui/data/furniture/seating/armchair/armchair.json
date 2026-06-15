@@ -1,0 +1,1 @@
+{"id":"armchair","name":"Armchair","category":"furniture","subcategory":"seating","icon":"🪑","builder":"buildArmchair","module":"../../furniture.js","dimensions":{"w":0.8,"d":0.76,"h":0.92},"tags":["kursi","armchair","seating"]}

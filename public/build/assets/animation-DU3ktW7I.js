@@ -1,0 +1,1 @@
+import{p as e}from"./animation.pure-CfP2b7Jt.js";e();

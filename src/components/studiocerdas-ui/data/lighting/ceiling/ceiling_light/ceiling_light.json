@@ -1,0 +1,1 @@
+{"id":"ceilinglight","name":"Ceiling Light","category":"lighting","subcategory":"ceiling","icon":"🔆","builder":"buildCeilingLight","module":"../../furniture2.js","dimensions":{"w":0.5,"d":0.5,"h":0.35},"mountType":"ceiling","tags":["lampu","plafon","ceiling","lighting"]}

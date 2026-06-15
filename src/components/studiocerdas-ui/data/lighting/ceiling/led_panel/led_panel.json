@@ -1,0 +1,1 @@
+{"id":"ledpanel","name":"LED Panel","category":"lighting","subcategory":"ceiling","icon":"💡","builder":"buildLEDPanel","module":"../../furniture2.js","dimensions":{"w":0.65,"d":0.65,"h":0.04},"mountType":"ceiling","tags":["lampu","led","panel","ceiling","lighting"]}

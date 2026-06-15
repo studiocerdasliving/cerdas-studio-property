@@ -1,0 +1,1 @@
+import{O as e}from"./sceneLoader-BCkr33Fr.js";e();

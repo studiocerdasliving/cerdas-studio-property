@@ -1,0 +1,1 @@
+{"id":"doubledoor","name":"Double Door","category":"build","subcategory":"doors","icon":"🚪","builder":"buildDoubleDoor","module":"../../furniture2.js","dimensions":{"w":1.6,"d":0.12,"h":2.15},"mountType":"wall","wallY":0,"tags":["pintu","ganda","double","build"]}

@@ -1,0 +1,1 @@
+{"id":"bathtub","name":"Bathtub","category":"furniture","subcategory":"bedroom","icon":"🛁","builder":"buildBathtub","module":"../../furniture.js","dimensions":{"w":1.6,"d":0.75,"h":0.55},"tags":["bak","mandi","bathtub"]}

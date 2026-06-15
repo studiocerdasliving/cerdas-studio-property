@@ -1,0 +1,1 @@
+{"id":"diningtable","name":"Dining Table","category":"furniture","subcategory":"tables","icon":"🍽️","builder":"buildDiningTable","module":"../../furniture.js","dimensions":{"w":1.6,"d":0.9,"h":0.75},"tags":["meja","makan","tables"]}

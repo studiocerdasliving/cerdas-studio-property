@@ -1,0 +1,11 @@
+{
+  "id": "sofa",
+  "name": "Sofa 3-Seater",
+  "category": "furniture",
+  "subcategory": "seating",
+  "icon": "🛋️",
+  "builder": "buildSofa",
+  "module": "../../furniture.js",
+  "dimensions": { "w": 1.8, "d": 0.85, "h": 1.05 },
+  "tags": ["sofa", "duduk", "ruang tamu", "seating"]
+}

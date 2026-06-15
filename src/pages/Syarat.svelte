@@ -1,0 +1,35 @@
+<script>
+    import Layout from '../components/Layout.svelte';
+</script>
+
+<Layout>
+    <div class="max-w-4xl mx-auto px-6 py-16">
+        <h1 class="text-4xl font-bold mb-8 text-[#031B4D]">Syarat & Ketentuan</h1>
+        
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-6 text-gray-700 leading-relaxed">
+            <p>Terakhir diperbarui: Juni 2026</p>
+            
+            <p>
+                Selamat datang di Studio Baik. Dengan mengakses situs web ini, kami menganggap Anda menerima syarat dan ketentuan ini. Jangan terus menggunakan Studio Baik jika Anda tidak setuju untuk menerima semua syarat dan ketentuan yang dinyatakan di halaman ini.
+            </p>
+            
+            <h2 class="text-xl font-bold text-[#031B4D] pt-4">1. Lisensi</h2>
+            <p>
+                Kecuali dinyatakan lain, Studio Baik dan/atau pemberi lisensinya memiliki hak kekayaan intelektual atas semua materi di Studio Baik. Semua hak kekayaan intelektual dilindungi undang-undang. Anda dapat mengakses ini dari Studio Baik untuk penggunaan pribadi Anda sendiri dengan tunduk pada batasan yang ditetapkan dalam syarat dan ketentuan ini.
+            </p>
+            
+            <h2 class="text-xl font-bold text-[#031B4D] pt-4">2. Anda tidak boleh:</h2>
+            <ul class="list-disc pl-5 space-y-2">
+                <li>Mempublikasikan ulang materi dari Studio Baik</li>
+                <li>Menjual, menyewakan, atau mensublisensikan materi dari Studio Baik</li>
+                <li>Mereproduksi, menggandakan, atau menyalin materi dari Studio Baik</li>
+                <li>Mendistribusikan ulang konten dari Studio Baik</li>
+            </ul>
+
+            <h2 class="text-xl font-bold text-[#031B4D] pt-4">3. Penolakan Tanggung Jawab (Disclaimer)</h2>
+            <p>
+                Sejauh yang diizinkan oleh hukum yang berlaku, kami mengecualikan semua representasi, jaminan, dan ketentuan yang berkaitan dengan situs web kami dan penggunaan situs web ini. Layanan dan desain 3D yang disediakan "sebagaimana adanya" dan kami tidak menjamin akurasi struktural untuk konstruksi bangunan nyata tanpa validasi dari profesional bersertifikat.
+            </p>
+        </div>
+    </div>
+</Layout>

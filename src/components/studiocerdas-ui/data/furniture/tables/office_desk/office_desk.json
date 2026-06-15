@@ -1,0 +1,1 @@
+{"id":"desk","name":"Office Desk","category":"furniture","subcategory":"tables","icon":"🖥️","builder":"buildDesk","module":"../../furniture.js","dimensions":{"w":1.4,"d":0.7,"h":0.74},"tags":["meja","kantor","kerja","tables"]}

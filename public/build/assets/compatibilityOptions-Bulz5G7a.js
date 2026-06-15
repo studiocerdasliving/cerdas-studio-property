@@ -1,0 +1,1 @@
+var e=!1;function t(t){e=t}var n={get UseOpenGLOrientationForUV(){return e},set UseOpenGLOrientationForUV(t){e=t}};export{t as n,e as r,n as t};

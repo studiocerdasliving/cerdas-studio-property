@@ -1,0 +1,1 @@
+{"id":"rug","name":"Area Rug","category":"furniture","subcategory":"decor","icon":"🟫","builder":"buildRug","module":"../../furniture.js","dimensions":{"w":2.0,"d":1.4,"h":0.02},"tags":["karpet","rug","decor"]}

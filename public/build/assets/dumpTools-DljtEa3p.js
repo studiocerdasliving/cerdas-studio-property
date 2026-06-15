@@ -1,0 +1,1 @@
+import{t as e}from"./rolldown-runtime-WNZMJCWm.js";import{a as t,i as n,n as r,o as i,r as a,s as o,t as s}from"./dumpTools.pure-CphslUr3.js";var c=e({Dispose:()=>s,DumpData:()=>r,DumpDataAsync:()=>a,DumpFramebuffer:()=>n,DumpTools:()=>t,EncodeImageAsync:()=>i,RegisterDumpTools:()=>o});o();export{c as t};

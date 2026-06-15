@@ -1,0 +1,1 @@
+{"id":"painting","name":"Wall Painting","category":"furniture","subcategory":"decor","icon":"🖼️","builder":"buildPainting","module":"../../furniture.js","dimensions":{"w":0.85,"d":0.08,"h":0.65},"tags":["lukisan","hiasan","dinding","decor"]}

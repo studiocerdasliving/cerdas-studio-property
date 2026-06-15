@@ -1,0 +1,69 @@
+<script>
+    import Layout from '../components/Layout.svelte';
+</script>
+
+<Layout>
+    <div class="max-w-4xl mx-auto px-6 py-16">
+        <h1 class="text-4xl font-bold mb-8 text-[#031B4D]">Hubungi Kami</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-6">
+                <h2 class="text-2xl font-bold text-[#031B4D]">Informasi Kontak</h2>
+                <p class="text-gray-600">Ada pertanyaan atau butuh bantuan? Jangan ragu untuk menghubungi tim kami.</p>
+                
+                <div class="space-y-4 pt-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+                            <span class="material-symbols-rounded">location_on</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Alamat Kantor</h3>
+                            <p class="text-gray-600">Jl. Teknologi No. 88, Waisaka District<br>Jakarta Selatan, 12345</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0">
+                            <span class="material-symbols-rounded">chat</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">WhatsApp</h3>
+                            <p class="text-gray-600">+62 812 3456 7890</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 shrink-0">
+                            <span class="material-symbols-rounded">mail</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Email</h3>
+                            <p class="text-gray-600">support@studiocerdas.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 space-y-6">
+                <h2 class="text-2xl font-bold text-[#031B4D]">Kirim Pesan</h2>
+                <form class="space-y-4" onsubmit={(e) => { e.preventDefault(); alert('Pesan Anda telah terkirim!'); }}>
+                    <div>
+                        <label for="kontak-nama" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                        <input id="kontak-nama" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" required>
+                    </div>
+                    <div>
+                        <label for="kontak-email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input id="kontak-email" type="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" required>
+                    </div>
+                    <div>
+                        <label for="kontak-pesan" class="block text-sm font-medium text-gray-700 mb-1">Pesan</label>
+                        <textarea id="kontak-pesan" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" required></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-[#031B4D] hover:bg-blue-900 text-white font-medium py-3 rounded-lg transition shadow-md">
+                        Kirim Pesan
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</Layout>

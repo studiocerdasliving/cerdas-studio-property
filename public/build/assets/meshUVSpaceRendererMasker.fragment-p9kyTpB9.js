@@ -1,0 +1,2 @@
+import{t as e}from"./rolldown-runtime-WNZMJCWm.js";import{t}from"./shaderStore-Cl2MRAbk.js";var n=e({meshUVSpaceRendererMaskerPixelShader:()=>a}),r=`meshUVSpaceRendererMaskerPixelShader`,i=`varying vec2 vUV;void main(void) {gl_FragColor=vec4(1.0,1.0,1.0,1.0);}
+`;t.ShadersStore[r]||(t.ShadersStore[r]=i);var a={name:r,shader:i};export{n,a as t};

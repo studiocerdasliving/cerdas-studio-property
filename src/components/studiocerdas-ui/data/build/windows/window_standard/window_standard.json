@@ -1,0 +1,1 @@
+{"id":"window","name":"Window","category":"build","subcategory":"windows","icon":"🪟","builder":"buildWindow","module":"../../furniture2.js","dimensions":{"w":1.2,"d":0.15,"h":1.0},"mountType":"wall","wallY":0.9,"tags":["jendela","window","build"]}

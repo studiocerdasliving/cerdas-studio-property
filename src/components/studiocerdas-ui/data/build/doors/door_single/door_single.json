@@ -1,0 +1,1 @@
+{"id":"door","name":"Door","category":"build","subcategory":"doors","icon":"🚪","builder":"buildDoor","module":"../../furniture2.js","dimensions":{"w":1.0,"d":0.12,"h":2.15},"mountType":"wall","wallY":0,"tags":["pintu","door","build"]}
