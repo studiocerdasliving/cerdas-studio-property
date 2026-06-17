@@ -1062,7 +1062,10 @@
 
 <style>
     /* ===== MOBILE HAMBURGER ===== */
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
+        .navbar-links {
+            display: none !important;
+        }
         #nav-hamburger {
             display: flex !important;
         }
