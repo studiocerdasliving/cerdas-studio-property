@@ -1,15 +1,25 @@
 <script>
     import { onMount } from 'svelte';
+    import { get } from 'svelte/store';
+    import { token } from '../../lib/stores/auth.js';
+    import { navigate } from 'svelte-routing';
     
     // URL ke React app Studio Design Tactical
     let designUrl = import.meta.env.VITE_STUDIODESIGN_URL || "http://cerdas-studio-design.music";
 
     onMount(() => {
-        // Ambil query parameter jika ada (misal: ?project=1)
-        const queryString = window.location.search;
+        const currentToken = get(token);
         
-        // Alihkan langsung ke React App
-        window.location.href = designUrl + queryString;
+        if (!currentToken) {
+            navigate('/studio/login');
+            return;
+        }
+
+        // Ambil query parameter jika ada (misal: ?project=1)
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Alihkan langsung ke React App, gunakan fragment untuk token agar tidak terekam di server logs/referrers
+        window.location.href = designUrl + "?" + urlParams.toString() + "#token=" + currentToken;
     });
 </script>
 

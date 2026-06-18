@@ -1,4 +1,6 @@
 <script>
+    import { onMount } from 'svelte';
+    import { apiFetch } from '../lib/api.js';
     import { user, logout } from '../lib/stores/auth.js';
     import { navigate } from 'svelte-routing';
 
@@ -7,9 +9,23 @@
         navigate('/login');
     }
 
-    // Dummy counts, ideally fetched from API
     let projectCount = 0;
     let objectCount = 0;
+
+    onMount(async () => {
+        try {
+            const [projects, elements] = await Promise.all([
+                apiFetch('/projects'),
+                apiFetch('/elements')
+            ]);
+            
+            projectCount = Array.isArray(projects) ? projects.length : 0;
+            // Endpoint /elements returns an array of objects
+            objectCount = Array.isArray(elements) ? elements.length : 0;
+        } catch (err) {
+            console.error('Gagal mengambil statistik:', err);
+        }
+    });
 </script>
 
 <svelte:head>
@@ -25,7 +41,7 @@
     </div>
     <div class="topbar-user">
         <a href="/studio/profil" style="color:white; text-decoration:none; display:flex; align-items:center; gap:8px;">
-            <i class="fa-regular fa-user"></i> {$user?.username || 'Guest'}
+            <i class="fa-regular fa-user"></i> {$user?.name || 'Guest'}
         </a>
         <button class="btn-logout" on:click={handleLogout}>Logout</button>
     </div>
@@ -40,7 +56,7 @@
     -->
 
     <div class="header-section">
-        <h1>Selamat Datang, {$user?.username || 'Guest'}</h1>
+        <h1>Selamat Datang, {$user?.name || 'Guest'}</h1>
         <p>Pilih aksi di bawah ini untuk memulai kreativitas Anda di Studio.</p>
     </div>
 

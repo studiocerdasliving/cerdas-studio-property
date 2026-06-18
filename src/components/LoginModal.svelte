@@ -100,18 +100,12 @@
         if (!pendingCredential || googleProcessing) return;
         googleProcessing = true;
         try {
-            const csrfToken = document.cookie.split('; ').find(r => r.startsWith('XSRF-TOKEN='))?.split('=')[1];
-            const res = await fetch(url('/auth/google/callback'), {
+            const res = await fetch(url('/api/auth/google'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '',
-                    'X-XSRF-TOKEN': csrfToken ? decodeURIComponent(csrfToken) : '',
-                    'X-Inertia': 'true',
-                    'X-Inertia-Version': document.querySelector('meta[name="inertia-version"]')?.getAttribute('content') ?? '',
                 },
-                credentials: 'same-origin',
                 body: JSON.stringify({ credential: pendingCredential }),
             });
 

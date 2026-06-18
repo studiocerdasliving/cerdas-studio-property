@@ -3,6 +3,7 @@
   import { apiFetch } from '../../lib/api.js'
   import { Link, navigate } from 'svelte-routing'
   import { url } from '../../lib/url.svelte.js'
+  import fpPromise from '@fingerprintjs/fingerprintjs';
 
   let name = $state('');
   let email = $state('');
@@ -13,6 +14,16 @@
   let errorMsg = $state('');
   let successMsg = $state('');
 
+  async function getFpHash() {
+      try {
+          const fp = await fpPromise.load();
+          const result = await fp.get();
+          return result.visitorId;
+      } catch(e) {
+          return "unknown";
+      }
+  }
+
   /** @param {Event} e */
   async function handleRegister(e) {
     e.preventDefault();
@@ -21,9 +32,10 @@
     successMsg = '';
     
     try {
+      const fp_hash = await getFpHash();
       await apiFetch('/agent/register', {
         method: 'POST',
-        body: JSON.stringify({ name, email, whatsapp, password })
+        body: JSON.stringify({ name, email, whatsapp, password, fp_hash })
       });
       successMsg = 'Pendaftaran berhasil! Silakan cek email Anda untuk verifikasi.';
       name = ''; email = ''; whatsapp = ''; password = '';

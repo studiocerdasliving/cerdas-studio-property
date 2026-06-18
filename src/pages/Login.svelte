@@ -2,19 +2,31 @@
     import { apiFetch } from '../lib/api.js';
     import { login } from '../lib/stores/auth.js';
     import { navigate } from 'svelte-routing';
+    import fpPromise from '@fingerprintjs/fingerprintjs';
 
     let username = '';
     let password = '';
     let errorMsg = '';
     let isLoading = false;
 
+    async function getFpHash() {
+        try {
+            const fp = await fpPromise.load();
+            const result = await fp.get();
+            return result.visitorId;
+        } catch(e) {
+            return "unknown";
+        }
+    }
+
     async function handleLogin() {
         errorMsg = '';
         isLoading = true;
         try {
+            const fp_hash = await getFpHash();
             const data = await apiFetch('/login', {
                 method: 'POST',
-                body: JSON.stringify({ email: username, password })
+                body: JSON.stringify({ email: username, password, fp_hash })
             });
             
             login(data.token, data.user);
@@ -58,9 +70,9 @@
 
         <div class="divider">ATAU</div>
 
-        <button class="btn btn-google" on:click={() => alert('Google Auth API Key required')}>Login with Google</button>
-        <button class="btn btn-facebook" on:click={() => alert('Facebook Auth API Key required')}>Login with Facebook</button>
-        <button class="btn btn-whatsapp" on:click={() => alert('WhatsApp Auth API Key required')}>Login with WhatsApp</button>
+        <button type="button" class="btn btn-google" on:click={() => errorMsg = 'Fitur Login Google segera hadir.'}>Login with Google</button>
+        <button type="button" class="btn btn-facebook" on:click={() => errorMsg = 'Fitur Login Facebook segera hadir.'}>Login with Facebook</button>
+        <button type="button" class="btn btn-whatsapp" on:click={() => errorMsg = 'Fitur Login WhatsApp segera hadir.'}>Login with WhatsApp</button>
         
         <div style="margin-top: 24px; font-size: 14px; color: #a0a0a0;">
             Belum punya akun? <a href="/studio/register" style="color: #7c3aed; text-decoration: none;">Daftar di sini</a>

@@ -1,20 +1,32 @@
 <script>
     import { apiFetch } from '../lib/api.js';
     import { navigate, Link } from 'svelte-routing';
+    import fpPromise from '@fingerprintjs/fingerprintjs';
 
     let username = '';
     let password = '';
     let errorMsg = '';
     let isRegistering = false;
 
+    async function getFpHash() {
+        try {
+            const fp = await fpPromise.load();
+            const result = await fp.get();
+            return result.visitorId;
+        } catch(e) {
+            return "unknown";
+        }
+    }
+
     async function handleRegister() {
         errorMsg = '';
         isRegistering = true;
         try {
+            const fp_hash = await getFpHash();
             // Placeholder: map to Rust API endpoint for registration
             await apiFetch('/register', {
                 method: 'POST',
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password, fp_hash })
             });
             
             // Navigate to login after successful register

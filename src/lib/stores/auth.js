@@ -17,8 +17,33 @@ export function login(newToken, userData) {
   isAuthenticated.set(true);
 }
 
+// Fungsi untuk update token saja (Sliding Session)
+export function updateToken(newToken) {
+  if (newToken) {
+    localStorage.setItem('token', newToken);
+    token.set(newToken);
+  }
+}
+
 // Fungsi untuk logout
-export function logout() {
+export async function logout() {
+  const currentToken = localStorage.getItem('token');
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+
+  if (currentToken) {
+    try {
+      // Panggil backend untuk memasukkan token ke daftar hitam (Blacklist)
+      await fetch(`${API_BASE_URL}/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${currentToken}`
+        }
+      });
+    } catch (e) {
+      console.error("Gagal blacklist token di server:", e);
+    }
+  }
+
   localStorage.removeItem('token');
   localStorage.removeItem('user');
   token.set(null);
