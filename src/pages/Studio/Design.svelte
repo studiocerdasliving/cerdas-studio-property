@@ -5,7 +5,10 @@
     import { navigate } from 'svelte-routing';
     
     // URL ke React app Studio Design Tactical
-    let designUrl = import.meta.env.VITE_STUDIODESIGN_URL || "http://cerdas-studio-design.music";
+    let designUrl = import.meta.env.VITE_STUDIODESIGN_URL;
+    if (!designUrl) {
+        console.error("VITE_STUDIODESIGN_URL is not set in .env");
+    }
 
     onMount(() => {
         const currentToken = get(token);

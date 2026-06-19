@@ -28,7 +28,10 @@ export function updateToken(newToken) {
 // Fungsi untuk logout
 export async function logout() {
   const currentToken = localStorage.getItem('token');
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  if (!API_BASE_URL) {
+      console.error("VITE_API_BASE_URL is not set in .env");
+  }
 
   if (currentToken) {
     try {

@@ -1,7 +1,10 @@
 import { get } from 'svelte/store';
 import { token, logout } from './stores/auth.js';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+if (!API_BASE_URL) {
+    console.error("VITE_API_BASE_URL is not set in .env");
+}
 
 export async function apiFetch(endpoint, options = {}) {
   const currentToken = get(token);
