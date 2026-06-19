@@ -189,7 +189,7 @@
     <div class="kb-spacer"></div>
 
     <!-- Back to Baik -->
-    <a href="http://localhost/studiocerdas/public" class="kb-back-btn" id="kb-btn-back" title="Kembali ke halaman utama Studio Baik">
+    <a href="" class="kb-back-btn" id="kb-btn-back" title="Kembali ke halaman utama Studio Baik">
       <i class="fas fa-arrow-left"></i>
       Back to Baik
     </a>
@@ -801,7 +801,7 @@
     <span class="material-symbols-rounded">info</span>
     <span id="status-text">Ready — Studio Baik 3D Room Designer</span>
     <span class="status-divider">|</span>
-    <a href="http://localhost/studiocerdas/public" class="k-link-muted" title="Kembali ke Studio Baik">← Studio Baik</a>
+    <a href="" class="k-link-muted" title="Kembali ke Studio Baik">← Studio Baik</a>
   </div>
   <div class="status-center">
     <span id="object-count">Objects: 0</span>

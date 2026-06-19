@@ -685,7 +685,7 @@
                   <div class="cover-badge">COVER</div>
                 {/if}
                 <img
-                  src="http://localhost/studiocerdas/public/upload/property/{photo.file}"
+                  src="/upload/property/{photo.file}"
                   alt="Foto {idx+1}"
                   onerror={/** @param {any} e */ (e) => { e.currentTarget.src='https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=150&q=60' }}
                 />

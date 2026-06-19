@@ -222,7 +222,7 @@
                                     <img
                                         src={auth.user.foto.startsWith("http")
                                             ? auth.user.foto
-                                            : `http://localhost/studiocerdas/public/upload/staff/${auth.user.foto}`}
+                                            : `/upload/staff/${auth.user.foto}`}
                                         style="width:100%;height:100%;object-fit:cover;"
                                         alt="User"
                                         onerror={/** @param {any} e */ (e) => { /** @type {HTMLElement} */ (e.currentTarget).style.display='none'; }}

@@ -144,14 +144,14 @@
     /** @param {string} filename */
     function artikelImg(filename) {
         if (!filename) return "";
-        const base = studiocerdasImgUrl || "http://localhost/studiocerdas/public";
+        const base = studiocerdasImgUrl || "";
         return base + "/upload/image/" + filename;
     }
 
     /** @param {string} filename */
     function promoImg(filename) {
         if (!filename) return "";
-        const base = studiocerdasImgUrl || "http://localhost/studiocerdas/public";
+        const base = studiocerdasImgUrl || "";
         return base + "/upload/image/" + filename;
     }
 
@@ -669,7 +669,7 @@
                                 <!-- Agent Info & WA -->
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light);">
                                     <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
-                                        <img src={p.gambar_staff ? ((studiocerdasImgUrl || 'http://localhost/studiocerdas/public') + '/upload/staff/' + p.gambar_staff) : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nama_staff || 'AGENT')}&background=C9A84C&color=fff&size=56`} alt="Agent" style="width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0;">
+                                        <img src={p.gambar_staff ? ((studiocerdasImgUrl || '') + '/upload/staff/' + p.gambar_staff) : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.nama_staff || 'AGENT')}&background=C9A84C&color=fff&size=56`} alt="Agent" style="width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0;">
                                         <div style="line-height:1.2; min-width:0; flex:1;">
                                             <div style="font-size:0.75rem; font-weight:700; color:var(--text-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title={p.nama_staff || "AGENT"}>{p.nama_staff || "AGENT"}</div>
                                             <div style="font-size:0.6rem; color:var(--text-3); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">INDEPENDENT AGENT</div>

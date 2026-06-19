@@ -26,7 +26,7 @@
       } else {
           article = res; 
       }
-      studiocerdasImgUrl = res.studiocerdasImgUrl || 'http://localhost/studiocerdas/public';
+      studiocerdasImgUrl = res.studiocerdasImgUrl || '';
     } catch (e) {
       console.error(e);
       article.judul_berita = 'Artikel Tidak Ditemukan';
@@ -45,7 +45,7 @@
   /** @param {string} filename */
   function artikelImg(filename) {
     if (!filename) return ''
-    const base = studiocerdasImgUrl || 'http://localhost/studiocerdas/public'
+    const base = studiocerdasImgUrl || ''
     return base + '/upload/image/' + filename
   }
 

@@ -72,7 +72,7 @@
                     {#if photoPreview}
                         <img src={photoPreview} alt="Avatar Preview" class="avatar-img-large" />
                     {:else if user.gambar}
-                        <img src={`http://localhost/studiocerdas/public/upload/staff/${user.gambar}`} alt={user.nama} class="avatar-img-large" />
+                        <img src={`/upload/staff/${user.gambar}`} alt={user.nama} class="avatar-img-large" />
                     {:else}
                         <div class="avatar-placeholder-large">{user.nama?.substring(0,1) || 'U'}</div>
                     {/if}

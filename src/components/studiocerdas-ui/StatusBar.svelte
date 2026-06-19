@@ -7,7 +7,7 @@
         <span class="material-symbols-rounded">info</span>
         <span id="status-text">{status.message}</span>
         <span class="status-divider">|</span>
-        <a href="http://localhost/studiocerdas/public" class="k-link-muted" title="Kembali">← studiocerdas Studio</a>
+        <a href="" class="k-link-muted" title="Kembali">← studiocerdas Studio</a>
     </div>
     <div class="status-center">
         <span id="object-count">Objects: {status.objectCount}</span>

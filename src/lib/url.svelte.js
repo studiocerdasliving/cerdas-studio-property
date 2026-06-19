@@ -10,7 +10,7 @@ export function url(path) {
 
 export function propertyImg(filename) {
   if (!filename || filename === 'null') return 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=600&q=80'
-  let base = 'http://localhost/studiocerdas/public';
+  let base = '';
   
   // Clean up any double slashes just in case
   const path = `/upload/property/${filename}`;

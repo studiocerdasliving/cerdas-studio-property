@@ -326,7 +326,7 @@
                   {#if idx === 0}
                     <div style="position: absolute; top: 0; left: 0; background: var(--gold); color: white; font-size: 0.65rem; padding: 2px 6px; font-weight: bold; border-bottom-right-radius: 6px; z-index: 2;">COVER</div>
                   {/if}
-                  <img src="http://localhost/studiocerdas/public/upload/property/{photo.gambar}" alt="Foto {idx+1}" style="width: 100%; height: 100%; object-fit: cover;" onerror={(e) => /** @type {HTMLImageElement} */(e.currentTarget).src='https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=150&q=60'} />
+                  <img src="/upload/property/{photo.gambar}" alt="Foto {idx+1}" style="width: 100%; height: 100%; object-fit: cover;" onerror={(e) => /** @type {HTMLImageElement} */(e.currentTarget).src='https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=150&q=60'} />
                   <button type="button" onclick={() => deleteExistingPhoto(photo)} style="position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.6); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2;">
                     <span class="material-symbols-rounded" style="font-size: 14px;">close</span>
                   </button>

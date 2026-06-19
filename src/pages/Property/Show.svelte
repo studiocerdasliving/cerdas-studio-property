@@ -710,7 +710,7 @@
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
             <img
               class="agent-avatar"
-              src={agent.gambar ? `http://localhost/studiocerdas/public/upload/staff/${agent.gambar}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(agent.nama_staff || 'Agen')}&background=C9A84C&color=fff&size=56`}
+              src={agent.gambar ? `/upload/staff/${agent.gambar}` : `https://ui-avatars.com/api/?name=${encodeURIComponent(agent.nama_staff || 'Agen')}&background=C9A84C&color=fff&size=56`}
               alt={agent.nama_staff}
             />
             <div>

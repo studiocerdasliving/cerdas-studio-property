@@ -91,7 +91,7 @@
     let rootUrl = parts.join('/') + '/';
 
     if (rootUrl.startsWith('/studio/data')) {
-      rootUrl = 'http://localhost/studiocerdas/public' + rootUrl;
+      rootUrl = '' + rootUrl;
     }
     
     try {

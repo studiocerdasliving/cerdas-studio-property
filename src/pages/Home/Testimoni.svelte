@@ -16,7 +16,7 @@
     function staffImg(filename) {
         if (!filename) return null;
         if (filename.startsWith('http')) return filename;
-        return `http://localhost/studiocerdas/public/upload/staff/${filename}`;
+        return `/upload/staff/${filename}`;
     }
 </script>
 
