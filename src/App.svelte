@@ -35,8 +35,6 @@
   import KprCalculator from "./pages/KprCalculator.svelte";
   import Gallery from "./pages/Gallery.svelte";
   import Viewer from "./pages/Viewer.svelte";
-  import TermsCondition from "./pages/TermsCondition.svelte";
-  import Profiles from "./pages/Profiles.svelte";
   
   export let url = "";
 </script>
@@ -62,8 +60,6 @@
     <Route path="/tentang"><Tentang /></Route>
     <Route path="/privasi"><Privasi /></Route>
     <Route path="/syarat"><Syarat /></Route>
-    <Route path="/terms-condition"><TermsCondition /></Route>
-    <Route path="/profiles"><Profiles /></Route>
 
     <!-- Agent Routes -->
     <Route path="/agent/login"><Login /></Route>

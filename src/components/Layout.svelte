@@ -993,7 +993,7 @@
                 <div>
                     <div class="footer-heading">PERUSAHAAN</div>
                     <Link to={url("/tentang")} class="footer-link"
-                        >Tentang Kami</Link
+                        >Tentang Cerdas Living</Link
                     >
                     <Link to={url("/karir")} class="footer-link">Karir</Link>
                     <Link to={url("/syarat")} class="footer-link"
@@ -1001,12 +1001,6 @@
                     >
                     <Link to={url("/privasi")} class="footer-link"
                         >Kebijakan Privasi</Link
-                    >
-                    <Link to={url("/profiles")} class="footer-link"
-                        >Tentang Cerdas Living</Link
-                    >
-                    <Link to={url("/terms-condition")} class="footer-link"
-                        >S&K Cerdas Living</Link
                     >
                 </div>
 
