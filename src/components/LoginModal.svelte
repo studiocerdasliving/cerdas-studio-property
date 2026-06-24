@@ -217,7 +217,7 @@
                 } else if (data.user?.akses_level === 'Agent' || data.user?.id_staff) {
                     navigate('/agent/dashboard');
                 } else {
-                    window.location.reload();
+                    navigate('/studio/hub');
                 }
             } else {
                 errors = { general: 'Gagal memproses login' };
