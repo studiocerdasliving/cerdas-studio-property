@@ -20,6 +20,7 @@
 
     let auth = $derived({ user: $user });
     let googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+    let ejasaUrl = import.meta.env.VITE_EJASA_URL || 'https://ejasa.cerdasliving.com';
     let userAksesLevel = $derived($user?.akses_level || '');
 
     let scrolled = $state(false);
@@ -202,7 +203,7 @@
                     onmouseleave={scheduleHide}
                 >
                     <a
-                        href="http://localhost:5175"
+                        href="{ejasaUrl}"
                         class="nav-link mega-nav-link {activeMenu === 'ejasa' ? 'active-cerdashover' : ''}"
                         style="font-weight:600; font-size:0.95rem; padding: 8px 16px;"
                     >
@@ -293,27 +294,27 @@
                         <!-- Col 1: Kategori Jasa -->
                         <div class="mega-col">
                             <div class="mega-heading">KATEGORI JASA</div>
-                            <a href="http://localhost:5175/kategori/desain" class="mega-item">
+                            <a href="{ejasaUrl}/kategori/desain" class="mega-item">
                                 <span style="font-size:1.2rem;width:24px;text-align:center;">🛋️</span>
                                 <span class="mega-label">Desain Interior</span>
                             </a>
-                            <a href="http://localhost:5175/kategori/kontraktor" class="mega-item">
+                            <a href="{ejasaUrl}/kategori/kontraktor" class="mega-item">
                                 <span style="font-size:1.2rem;width:24px;text-align:center;">🏗️</span>
                                 <span class="mega-label">Kontraktor</span>
                             </a>
-                            <a href="http://localhost:5175/kategori/tukang" class="mega-item">
+                            <a href="{ejasaUrl}/kategori/tukang" class="mega-item">
                                 <span style="font-size:1.2rem;width:24px;text-align:center;">🧱</span>
                                 <span class="mega-label">Tukang Bangun</span>
                             </a>
-                            <a href="http://localhost:5175/kategori/ac" class="mega-item">
+                            <a href="{ejasaUrl}/kategori/ac" class="mega-item">
                                 <span style="font-size:1.2rem;width:24px;text-align:center;">❄️</span>
                                 <span class="mega-label">AC & Utilities</span>
                             </a>
-                            <a href="http://localhost:5175/kategori/cleaning" class="mega-item">
+                            <a href="{ejasaUrl}/kategori/cleaning" class="mega-item">
                                 <span style="font-size:1.2rem;width:24px;text-align:center;">🧹</span>
                                 <span class="mega-label">Cleaning Service</span>
                             </a>
-                            <a href="http://localhost:5175/kategori" class="mega-item">
+                            <a href="{ejasaUrl}/kategori" class="mega-item">
                                 <span style="font-size:1.2rem;width:24px;text-align:center;">⚙️</span>
                                 <span class="mega-label">Lainnya</span>
                             </a>
@@ -322,27 +323,27 @@
                         <!-- Col 2: Lokasi Populer -->
                         <div class="mega-col">
                             <div class="mega-heading">LOKASI POPULER</div>
-                            <a href="http://localhost:5175/?lokasi=Jakarta+Selatan" class="mega-item">
+                            <a href="{ejasaUrl}/?lokasi=Jakarta+Selatan" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">location_on</span>
                                 <span class="mega-label">Jakarta Selatan</span>
                             </a>
-                            <a href="http://localhost:5175/?lokasi=Jakarta+Barat" class="mega-item">
+                            <a href="{ejasaUrl}/?lokasi=Jakarta+Barat" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">location_on</span>
                                 <span class="mega-label">Jakarta Barat</span>
                             </a>
-                            <a href="http://localhost:5175/?lokasi=Tangerang" class="mega-item">
+                            <a href="{ejasaUrl}/?lokasi=Tangerang" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">location_on</span>
                                 <span class="mega-label">Tangerang</span>
                             </a>
-                            <a href="http://localhost:5175/?lokasi=Bekasi" class="mega-item">
+                            <a href="{ejasaUrl}/?lokasi=Bekasi" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">location_on</span>
                                 <span class="mega-label">Bekasi</span>
                             </a>
-                            <a href="http://localhost:5175/?lokasi=Depok" class="mega-item">
+                            <a href="{ejasaUrl}/?lokasi=Depok" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">location_on</span>
                                 <span class="mega-label">Depok</span>
                             </a>
-                            <a href="http://localhost:5175/?lokasi=Bogor" class="mega-item">
+                            <a href="{ejasaUrl}/?lokasi=Bogor" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">location_on</span>
                                 <span class="mega-label">Bogor</span>
                             </a>
@@ -351,28 +352,28 @@
                         <!-- Col 3: Fitur -->
                         <div class="mega-col">
                             <div class="mega-heading">FITUR</div>
-                            <a href="http://localhost:5175/profesional" class="mega-item">
+                            <a href="{ejasaUrl}/profesional" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">search</span>
                                 <div>
                                     <span class="mega-label">Cari Profesional</span>
                                     <span class="mega-desc">Temukan jasa terpercaya</span>
                                 </div>
                             </a>
-                            <a href="http://localhost:5175/pasang-iklan" class="mega-item">
+                            <a href="{ejasaUrl}/pasang-iklan" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">campaign</span>
                                 <div>
                                     <span class="mega-label">Pasang Iklan</span>
                                     <span class="mega-desc">Promosikan bisnis Anda</span>
                                 </div>
                             </a>
-                            <a href="http://localhost:5175/jadi-profesional" class="mega-item">
+                            <a href="{ejasaUrl}/jadi-profesional" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">verified</span>
                                 <div>
                                     <span class="mega-label">Jadi Profesional</span>
                                     <span class="mega-desc">Daftarkan layanan Anda</span>
                                 </div>
                             </a>
-                            <a href="http://localhost:5175/paket" class="mega-item">
+                            <a href="{ejasaUrl}/paket" class="mega-item">
                                 <span class="mega-icon material-symbols-rounded">workspace_premium</span>
                                 <div>
                                     <span class="mega-label">Pilih Paket</span>
@@ -383,7 +384,7 @@
                     </div>
                     <!-- Footer bar -->
                     <div class="mega-footer">
-                        <a href="http://localhost:5175" class="mega-footer-link">
+                        <a href="{ejasaUrl}" class="mega-footer-link">
                             <span class="material-symbols-rounded" style="font-size:1.1rem; vertical-align:middle; margin-right:4px;">handyman</span>
                             Profesional Terbaik · <strong>Lihat semua jasa →</strong>
                         </a>
