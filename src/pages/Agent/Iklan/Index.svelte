@@ -1,5 +1,5 @@
 <script>
-  import Layout from '../../../components/Layout.svelte'
+  import AgentLayout from '../../../components/AgentLayout.svelte'
   import { apiFetch } from '../../../lib/api.js'
   import { onMount } from 'svelte'
   import { Link } from 'svelte-routing'
@@ -50,7 +50,7 @@
   }
 </script>
 
-<Layout title="Manajemen Iklan">
+<AgentLayout title="Manajemen Iklan">
   <div class="container" style="padding: 40px 0;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
       <h1 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text-1);">Iklan Properti Anda</h1>
@@ -128,4 +128,4 @@
       {/if}
     {/if}
   </div>
-</Layout>
+</AgentLayout>

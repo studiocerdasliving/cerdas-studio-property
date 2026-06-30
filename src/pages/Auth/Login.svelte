@@ -87,13 +87,18 @@
         if (!pendingCredential || googleProcessing) return;
         googleProcessing = true;
         try {
-            const res = await apiFetch('/auth/google/callback', {
+            const res = await apiFetch('/auth/google', {
                 method: 'POST',
-                body: JSON.stringify({ credential: pendingCredential })
+                body: JSON.stringify({ token: pendingCredential })
             });
 
             if (res.token) {
-                window.location.href = url('/');
+                login(res.token, res.user);
+                if (res.user?.akses_level === 'Agent' || res.user?.id_staff) {
+                    window.location.href = url('/agent/dashboard');
+                } else {
+                    window.location.href = 'http://localhost:5174/studio/hub?token=' + res.token;
+                }
             } else {
                 cancelGoogleLogin();
                 alert('Login Google gagal.');
@@ -199,9 +204,15 @@
                 localStorage.setItem('auth_token', data.token);
                 if (data.user) {
                     localStorage.setItem('user', JSON.stringify(data.user));
-                    navigate(data.user.role === 'admin' ? '/admin/dashboard' : '/agent/dashboard');
+                    if (data.user.role === 'admin') {
+                        navigate('/admin/dashboard');
+                    } else if (data.user.akses_level === 'Agent' || data.user.id_staff) {
+                        navigate('/agent/dashboard');
+                    } else {
+                        window.location.href = 'http://localhost:5174/studio/hub?token=' + data.token;
+                    }
                 } else {
-                    navigate('/');
+                    window.location.href = 'http://localhost:5174/studio/hub?token=' + data.token;
                 }
             } else {
                 errors = { global: "Gagal memproses login" };

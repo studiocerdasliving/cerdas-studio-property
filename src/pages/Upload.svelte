@@ -1,6 +1,7 @@
 <script>
     import { apiFetch } from '../lib/api.js';
     import { navigate, Link } from 'svelte-routing';
+    import StudioLayout from '../components/StudioLayout.svelte';
 
     let name = '';
     let category = 'custom';
@@ -63,12 +64,7 @@
     }
 </script>
 
-<svelte:head>
-    <title>Upload Object 3D - Studio Kalepa</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</svelte:head>
-
+<StudioLayout title="Upload Object 3D">
 <div class="topbar">
     <Link to="/studio/hub" class="btn-back">
         <i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
@@ -152,6 +148,7 @@
         </form>
     </div>
 </div>
+</StudioLayout>
 
 <style>
     :global(body) {

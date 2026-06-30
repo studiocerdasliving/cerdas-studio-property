@@ -2,6 +2,7 @@
     import { user, logout } from '../lib/stores/auth.js';
     import { apiFetch } from '../lib/api.js';
     import { navigate, Link } from 'svelte-routing';
+    import StudioLayout from '../components/StudioLayout.svelte';
 
     let newPassword = '';
     let successMsg = '';
@@ -38,19 +39,18 @@
     }
 </script>
 
-<svelte:head>
-    <title>Studio Baik - Profil</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</svelte:head>
-
+<StudioLayout title="Profil Saya">
 <div class="topbar">
     <Link to="/studio/hub" class="topbar-brand">
         <i class="fa-solid fa-cube" style="color:#7c3aed;"></i> Studio Baik
     </Link>
-    <div class="topbar-user">
-        <span><i class="fa-regular fa-user"></i> {$user?.username || 'Guest'}</span>
-        <button class="btn-logout" on:click={handleLogout}>Logout</button>
+    <div class="topbar-right">
+        <div class="user-pill">
+            <i class="fa-solid fa-user"></i> {$user?.name || $user?.nama || 'User'}
+        </div>
+        <button class="btn-logout" on:click={handleLogout}>
+            Logout <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
     </div>
 </div>
 
@@ -95,6 +95,8 @@
         </form>
     </div>
 </div>
+</StudioLayout>
+
 
 <style>
     :global(body) {

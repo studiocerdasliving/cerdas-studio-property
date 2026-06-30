@@ -99,12 +99,7 @@
 
     <!-- Tautan ke website -->
     <div class="sidebar-bottom">
-      {#if isActive('/agent/dashboard')}
-      <a href={url('/')} target="_blank" class="nav-item nav-item-muted">
-        <span class="material-symbols-rounded nav-icon">open_in_new</span>
-        <span class="nav-label">Lihat Website</span>
-      </a>
-      {/if}
+
       <a href="#" onclick={handleLogout} class="nav-item nav-item-logout">
         <span class="material-symbols-rounded nav-icon">logout</span>
         <span class="nav-label">Keluar</span>
@@ -127,11 +122,7 @@
         <div class="header-title">{title}</div>
       </div>
       <div class="header-right">
-        {#if isActive('/agent/dashboard')}
-        <a href={url('/')} target="_blank" class="header-icon-btn" title="Lihat Website">
-          <span class="material-symbols-rounded">language</span>
-        </a>
-        {/if}
+
         <a href={url('/agent/profil')} class="header-avatar" title="Profil Saya">
           <span class="material-symbols-rounded">person</span>
         </a>

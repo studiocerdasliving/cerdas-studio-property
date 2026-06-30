@@ -1,4 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/playfair-display/600.css";
+@import "@fontsource/playfair-display/700.css";
+@import "@fontsource/playfair-display/800.css";
+@import "material-symbols/rounded.css";
 @import "tailwindcss";
 
 :root {
@@ -420,4 +427,3 @@ input[type="range"]{width:100%;accent-color:var(--gold)}
 
 /* Pulse animation */
 @keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
-

@@ -43,7 +43,16 @@
     });
 
     function handleDashboard() {
-        navigate(userAksesLevel === 'Agent' ? '/agent/dashboard' : '/studio/hub');
+        if (userAksesLevel === 'Agent') {
+            navigate('/agent/dashboard');
+        } else {
+            const token = localStorage.getItem('auth_token');
+            if (token) {
+                window.location.href = 'http://localhost:5174/studio/hub?token=' + token;
+            } else {
+                window.location.href = 'http://localhost:5174/studio/hub';
+            }
+        }
     }
 
     async function handleLogout() {
@@ -193,7 +202,7 @@
                     onmouseleave={scheduleHide}
                 >
                     <a
-                        href={url("/studio/hub")}
+                        href="http://localhost:5174/studio/hub"
                         onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}
                         class="nav-link mega-nav-link {activeMenu === 'studio'
                             ? 'active-cerdashover'
@@ -604,7 +613,7 @@
                         <!-- Col 1: Desain AI -->
                         <div class="mega-col">
                             <div class="mega-heading">DESAIN AI</div>
-                            <a href={url("/studio/hub")} class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
+                            <a href="http://localhost:5174/studio/hub" class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
                                 <span class="mega-icon material-symbols-rounded"
                                     >account_balance</span
                                 >
@@ -617,7 +626,7 @@
                                     >
                                 </div>
                             </a>
-                            <a href={url("/studio/hub")} class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
+                            <a href="http://localhost:5174/studio/hub" class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
                                 <span class="mega-icon material-symbols-rounded"
                                     >chair</span
                                 >
@@ -628,7 +637,7 @@
                                     >
                                 </div>
                             </a>
-                            <a href={url("/studio/hub")} class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
+                            <a href="http://localhost:5174/studio/hub" class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
                                 <span class="mega-icon material-symbols-rounded"
                                     >square_foot</span
                                 >
@@ -639,7 +648,7 @@
                                     >
                                 </div>
                             </a>
-                            <a href={url("/studio/hub")} class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
+                            <a href="http://localhost:5174/studio/hub" class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
                                 <span class="mega-icon material-symbols-rounded"
                                     >park</span
                                 >
@@ -650,7 +659,7 @@
                                     >
                                 </div>
                             </a>
-                            <a href={url("/studio/hub")} class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
+                            <a href="http://localhost:5174/studio/hub" class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
                                 <span class="mega-icon material-symbols-rounded"
                                     >bar_chart</span
                                 >
@@ -686,7 +695,7 @@
                                     >
                                 </div>
                             </a>
-                            <a href={url("/studio/hub")} class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
+                            <a href="http://localhost:5174/studio/hub" class="mega-item" onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}>
                                 <span class="mega-icon material-symbols-rounded"
                                     >texture</span
                                 >
@@ -723,7 +732,7 @@
                                     teknologi AI terkini.
                                 </p>
                                 <a
-                                    href={url("/studio/hub")}
+                                    href="http://localhost:5174/studio/hub"
                                     onclick={(e) => { if (!auth?.user) { e.preventDefault(); openLogin('/studio/hub'); } }}
                                     class="mega-cta-btn"
                                 >

@@ -1,5 +1,5 @@
 <script>
-  import Layout from '../../components/Layout.svelte'
+  import AgentLayout from '../../components/AgentLayout.svelte'
   import { apiFetch } from '../../lib/api.js'
   import { onMount } from 'svelte'
 
@@ -62,7 +62,7 @@
   }
 </script>
 
-<Layout title="Profil Agen">
+<AgentLayout title="Profil Agen">
   <div class="container" style="padding: 60px 0; max-width: 900px;">
     <h1 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text-1); margin-bottom: 32px;">Pengaturan Profil</h1>
     
@@ -125,4 +125,4 @@
       </div>
     {/if}
   </div>
-</Layout>
+</AgentLayout>

@@ -42,8 +42,7 @@
             document.body.style.overflow = 'hidden';
             if (!captchaImg) fetchCaptcha();
             if (google_client_id) {
-                const el = document.getElementById('gsi-login-modal-script');
-                if (el) initLoginGSI();
+                if (/** @type {any} */ (window).google) initLoginGSI();
             }
         } else {
             document.body.style.overflow = '';
@@ -100,24 +99,31 @@
         if (!pendingCredential || googleProcessing) return;
         googleProcessing = true;
         try {
-            const res = await fetch(url('/api/auth/google'), {
+            const res = await apiFetch('/auth/google', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ credential: pendingCredential }),
+                body: JSON.stringify({ token: pendingCredential }),
             });
 
             if (res.status === 409) {
                 window.location.href = res.headers.get('X-Inertia-Location') || url('/');
                 return;
             }
-            if (res.ok) {
-                window.location.reload();
+            if (res.token) {
+                login(res.token, res.user);
+                closeModal();
+                if (intendedRoute) {
+                    if (intendedRoute === '/studio/hub') {
+                        window.location.href = 'http://localhost:5174/studio/hub?token=' + res.token;
+                    } else {
+                        navigate(intendedRoute);
+                    }
+                } else if (res.user?.akses_level === 'Agent' || res.user?.id_staff) {
+                    navigate('/agent/dashboard');
+                } else {
+                    window.location.href = 'http://localhost:5174/studio/hub?token=' + res.token;
+                }
             } else {
-                const json = await res.json().catch(() => ({}));
-                errors = { google: json?.errors?.google ?? json?.message ?? 'Login Google gagal.' };
+                errors = { google: res.errors?.google ?? res.message ?? 'Login Google gagal.' };
                 showGooglePopup = false;
             }
         } catch {
@@ -213,11 +219,15 @@
                 login(data.token, data.user);
                 closeModal();
                 if (intendedRoute) {
-                    navigate(intendedRoute);
+                    if (intendedRoute === '/studio/hub') {
+                        window.location.href = 'http://localhost:5174/studio/hub?token=' + data.token;
+                    } else {
+                        navigate(intendedRoute);
+                    }
                 } else if (data.user?.akses_level === 'Agent' || data.user?.id_staff) {
                     navigate('/agent/dashboard');
                 } else {
-                    navigate('/studio/hub');
+                    window.location.href = 'http://localhost:5174/studio/hub?token=' + data.token;
                 }
             } else {
                 errors = { general: 'Gagal memproses login' };

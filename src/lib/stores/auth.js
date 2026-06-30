@@ -14,9 +14,36 @@ export const token = writable(null); // Deprecated, kept for backward compatibil
 export const user = writable(initialUser);
 export const isAuthenticated = writable(!!initialUser);
 
+const AUTH_STORAGE_KEYS = [
+  'user',
+  'token',
+  'auth_token',
+  'auth_session',
+  'jwt_token',
+  'studio_token',
+  'studio_project_id',
+  'studio_project_name'
+];
+
+export function clearAuthState() {
+  for (const key of AUTH_STORAGE_KEYS) {
+    localStorage.removeItem(key);
+    sessionStorage.removeItem(key);
+  }
+
+  token.set(null);
+  user.set(null);
+  isAuthenticated.set(false);
+}
+
 // Fungsi untuk login dan menyimpan user
 export function login(newToken, userData) {
   localStorage.setItem('user', JSON.stringify(userData));
+  if (newToken) {
+    localStorage.setItem('token', newToken);
+    localStorage.setItem('auth_token', newToken);
+  }
+  token.set(newToken || null);
   user.set(userData);
   isAuthenticated.set(true);
 }
@@ -43,8 +70,5 @@ export async function logout() {
     console.error("Gagal logout di server:", e);
   }
 
-  localStorage.removeItem('user');
-  token.set(null);
-  user.set(null);
-  isAuthenticated.set(false);
+  clearAuthState();
 }

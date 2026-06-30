@@ -1,5 +1,5 @@
 <script>
-  import Layout from '../../../components/Layout.svelte'
+  import AgentLayout from '../../../components/AgentLayout.svelte'
   import { apiFetch } from '../../../lib/api.js'
   import { onMount } from 'svelte'
   import { navigate } from 'svelte-routing'
@@ -93,7 +93,7 @@
   }
 </script>
 
-<Layout title="Tambah Iklan">
+<AgentLayout title="Tambah Iklan">
   <div class="container" style="padding: 40px 0; max-width: 800px;">
     <h1 style="font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text-1); margin-bottom: 32px;">Informasi Properti</h1>
     
@@ -227,4 +227,4 @@
       </p>
     </form>
   </div>
-</Layout>
+</AgentLayout>

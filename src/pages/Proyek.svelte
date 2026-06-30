@@ -3,6 +3,7 @@
     import { apiFetch } from '../lib/api.js';
     import { onMount } from 'svelte';
     import { navigate, Link } from 'svelte-routing';
+    import StudioLayout from '../components/StudioLayout.svelte';
 
     /** @type {any[]} */
     let projects = [];
@@ -48,6 +49,7 @@
     </div>
 </div>
 
+<StudioLayout title="Proyek Saya">
 <div class="container">
     <Link to="/studio/hub" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard</Link>
 
@@ -93,6 +95,7 @@
         </div>
     {/if}
 </div>
+</StudioLayout>
 
 <style>
     :global(body) {
