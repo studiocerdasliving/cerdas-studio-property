@@ -1,46 +1,12 @@
 <script>
   import { Router, Route } from "svelte-routing";
-  
-  // Phase 1 (Blade Replicas)
-  import Login from "./pages/Login.svelte";
-  import Register from "./pages/Register.svelte";
-  import Dashboard from "./pages/Dashboard.svelte";
-  import Profil from "./pages/Profil.svelte";
-  import Proyek from "./pages/Proyek.svelte";
-  import Upload from "./pages/Upload.svelte";
-  import Design from "./pages/Studio/Design.svelte";
+  import ComposerRythmeViews from "./composer-rythme/ComposerRythmeViews.svelte";
   import LoginModal from "./components/LoginModal.svelte";
   import RegisterModal from "./components/RegisterModal.svelte";
-
-  // Phase 2 (Inertia Replicas)
-  import Landing from "./pages/Landing.svelte";
-  import AiAssistant from "./pages/AiAssistant.svelte";
-  import PropertyIndex from "./pages/Property/Index.svelte";
-  import PropertyShow from "./pages/Property/Show.svelte";
-  
-  // Unused agent auth components removed
-  import AgentProfil from "./pages/Agent/Profil.svelte";
-  import AgentDashboard from "./pages/Agent/Dashboard/Index.svelte";
-  import AgentIklanIndex from "./pages/Agent/Iklan/Index.svelte";
-  import AgentIklanCreate from "./pages/Agent/Iklan/Create.svelte";
-  import AgentIklanEdit from "./pages/Agent/Iklan/Edit.svelte";
-  
-  import BeritaShow from "./pages/Berita/Show.svelte";
-  
-  import TestimoniIndex from "./pages/Testimoni/Index.svelte";
-  import TestimoniCreate from "./pages/Testimoni/Create.svelte";
-  
-  import Kontak from "./pages/Kontak.svelte";
-  import Tentang from "./pages/Tentang.svelte";
-  import Privasi from "./pages/Privasi.svelte";
-  import Syarat from "./pages/Syarat.svelte";
-  import KprCalculator from "./pages/KprCalculator.svelte";
-  import Gallery from "./pages/Gallery.svelte";
-  import Viewer from "./pages/Viewer.svelte";
+  import { onMount } from "svelte";
+  import { StudioLoginModal, StudioRegisterModal, EjasaLoginModal, EjasaRegisterModal } from '@cerdas/shell';
   
   export let url = "";
-
-  import { StudioLoginModal, StudioRegisterModal, EjasaLoginModal, EjasaRegisterModal } from '@cerdas/shell';
 
   let showLoginModal = false;
   let showRegisterModal = false;
@@ -49,7 +15,6 @@
   let showEjasaLoginModal = false;
   let showEjasaRegisterModal = false;
 
-  import { onMount } from "svelte";
   onMount(() => {
     const searchParams = new URLSearchParams(window.location.search);
     if (searchParams.get('login') === 'true') {
@@ -104,44 +69,30 @@
     <EjasaRegisterModal bind:open={showEjasaRegisterModal} onClose={() => showEjasaRegisterModal=false} />
   {/if}
   <div>
-    <!-- Public Routes -->
-    <Route path="/"><Landing /></Route>
-    <Route path="/properti"><PropertyIndex /></Route>
-    <Route path="/properti/:slug" let:params><PropertyShow slug={params.slug} /></Route>
-    <Route path="/ai/assistant"><AiAssistant /></Route>
-    
-    <Route path="/berita/:slug" let:params><BeritaShow slug={params.slug} /></Route>
-    
-    <Route path="/testimoni"><TestimoniIndex /></Route>
-    <Route path="/testimoni/kirim"><TestimoniCreate /></Route>
-    
-    <Route path="/kpr-calculator"><KprCalculator /></Route>
-    <Route path="/gallery"><Gallery /></Route>
-    <Route path="/viewer"><Viewer /></Route>
-    
-    <Route path="/kontak"><Kontak /></Route>
-    <Route path="/tentang"><Tentang /></Route>
-    <Route path="/privasi"><Privasi /></Route>
-    <Route path="/syarat"><Syarat /></Route>
-
-    <!-- Agent Routes -->
-    <Route path="/agent/login"><Login /></Route>
-    <Route path="/pasang-iklan"><Register /></Route>
-    <Route path="/agent/dashboard"><AgentDashboard /></Route>
-    <Route path="/agent/profil"><AgentProfil /></Route>
-    <Route path="/agent/iklan"><AgentIklanIndex /></Route>
-    <Route path="/agent/iklan/tambah"><AgentIklanCreate /></Route>
-    <Route path="/agent/iklan/:id/edit" let:params><AgentIklanEdit id={params.id} /></Route>
-
-    <!-- Studio Routes (Phase 1) -->
-    <Route path="/login"><Login /></Route>
-    <Route path="/studio/login"><Login /></Route>
-    <Route path="/studio/register"><Register /></Route>
-    <Route path="/studio/hub"><Dashboard /></Route>
-    <Route path="/studio/profil"><Profil /></Route>
-    <Route path="/studio/proyek"><Proyek /></Route>
-    <Route path="/studio/upload"><Upload /></Route>
-    <Route path="/studio/design"><Design /></Route>
-    <Route path="/design"><Design /></Route>
+    <Route path="/"><ComposerRythmeViews routeKey="/" /></Route>
+    <Route path="/properti"><ComposerRythmeViews routeKey="/properti" /></Route>
+    <Route path="/properti/:slug" let:params><ComposerRythmeViews routeKey="/properti/:slug" {params} /></Route>
+    <Route path="/ai/assistant"><ComposerRythmeViews routeKey="/ai/assistant" /></Route>
+    <Route path="/berita/:slug" let:params><ComposerRythmeViews routeKey="/berita/:slug" {params} /></Route>
+    <Route path="/testimoni"><ComposerRythmeViews routeKey="/testimoni" /></Route>
+    <Route path="/testimoni/kirim"><ComposerRythmeViews routeKey="/testimoni/kirim" /></Route>
+    <Route path="/kpr-calculator"><ComposerRythmeViews routeKey="/kpr-calculator" /></Route>
+    <Route path="/gallery"><ComposerRythmeViews routeKey="/gallery" /></Route>
+    <Route path="/viewer"><ComposerRythmeViews routeKey="/viewer" /></Route>
+    <Route path="/kontak"><ComposerRythmeViews routeKey="/kontak" /></Route>
+    <Route path="/tentang"><ComposerRythmeViews routeKey="/tentang" /></Route>
+    <Route path="/privasi"><ComposerRythmeViews routeKey="/privasi" /></Route>
+    <Route path="/syarat"><ComposerRythmeViews routeKey="/syarat" /></Route>
+    <Route path="/agent/login"><ComposerRythmeViews routeKey="/agent/login" /></Route>
+    <Route path="/login"><ComposerRythmeViews routeKey="/login" /></Route>
+    <Route path="/register"><ComposerRythmeViews routeKey="/register" /></Route>
+    <Route path="/agent/register"><ComposerRythmeViews routeKey="/agent/register" /></Route>
+    <Route path="/pasang-iklan"><ComposerRythmeViews routeKey="/pasang-iklan" /></Route>
+    <Route path="/agent/dashboard"><ComposerRythmeViews routeKey="/agent/dashboard" /></Route>
+    <Route path="/agent/beli-paket-iklan"><ComposerRythmeViews routeKey="/agent/beli-paket-iklan" /></Route>
+    <Route path="/agent/profil"><ComposerRythmeViews routeKey="/agent/profil" /></Route>
+    <Route path="/agent/iklan"><ComposerRythmeViews routeKey="/agent/iklan" /></Route>
+    <Route path="/agent/iklan/tambah"><ComposerRythmeViews routeKey="/agent/iklan/tambah" /></Route>
+    <Route path="/agent/iklan/:id/edit" let:params><ComposerRythmeViews routeKey="/agent/iklan/:id/edit" {params} /></Route>
   </div>
 </Router>

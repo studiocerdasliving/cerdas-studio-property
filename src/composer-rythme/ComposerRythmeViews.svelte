@@ -52,6 +52,7 @@
     mode={routeConfig.mode}
     loginPath={tokenContext.loginPath}
     dashboardPath={tokenContext.dashboardPath}
+    {tokenContext}
   >
     {#if ready}
       <svelte:component this={View} {...viewProps} />
