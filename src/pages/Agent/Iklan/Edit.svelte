@@ -158,16 +158,13 @@
       
       // Upload new images if any
       if (previewPhotos.length > 0) {
-        const token = localStorage.getItem('token');
         const formData = new FormData();
         previewPhotos.forEach(p => formData.append('gambar[]', p.file));
         
         // Cannot use apiFetch for multipart directly easily, so fetch manually
         const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/agent/iklan/${id}/gambar`, {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          },
+          credentials: 'include',
           body: formData
         });
         

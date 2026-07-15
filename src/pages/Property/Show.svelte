@@ -72,9 +72,48 @@
 
   $effect(() => {
     if (slug) {
-      loadData();
+      if (slug === 'preview') {
+        loadPreviewData();
+      } else {
+        loadData();
+      }
     }
   });
+
+  async function loadPreviewData() {
+    isLoading = true;
+    try {
+      const draft = JSON.parse(localStorage.getItem('preview_iklan') || '{}');
+      property = { ...draft, nama_property: draft.nama_property || 'Draft Properti' };
+      
+      images = (draft.preview_images || []).map((imgUrl, i) => ({
+        id_property_img: i,
+        gambar: imgUrl, // Will be object URLs or base64
+        index_img: i
+      }));
+      
+      agent = { nama_staff: 'Agen (Preview)', jabatan: 'Marketing', telepon: '-', whatsapp: '-' };
+      
+      try {
+        const res = await apiFetch('/agent/dashboard');
+        if (res && res.staff) {
+          agent = res.staff;
+        }
+      } catch (e) {
+        console.warn("Could not fetch real agent data for preview", e);
+      }
+      related = [];
+      banks = kprFallbackBanks;
+      banksLoaded = true;
+      if (banks.length > 0) selectedBankId = banks[0].id;
+      
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      console.error(e);
+    } finally {
+      isLoading = false;
+    }
+  }
 
   async function loadData() {
     isLoading = true;

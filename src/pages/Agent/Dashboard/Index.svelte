@@ -275,6 +275,7 @@
     white-space: nowrap;
   }
   .btn-primary:hover {
+    background: linear-gradient(135deg, #714E13, #8B6914) !important;
     transform: translateY(-1px);
     box-shadow: 0 6px 18px rgba(201,168,76,0.4);
   }

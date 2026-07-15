@@ -39,11 +39,8 @@ export function clearAuthState() {
 // Fungsi untuk login dan menyimpan user
 export function login(newToken, userData) {
   localStorage.setItem('user', JSON.stringify(userData));
-  if (newToken) {
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('auth_token', newToken);
-  }
-  token.set(newToken || null);
+  // token storage is removed to comply with HttpOnly cookie
+  token.set(null);
   user.set(userData);
   isAuthenticated.set(true);
 }

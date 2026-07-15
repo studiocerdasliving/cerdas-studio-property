@@ -4,6 +4,7 @@
     import { fade, scale } from 'svelte/transition';
     import { url } from '../lib/url.svelte.js';
     import { apiFetch } from '../lib/api.js';
+    import { AuthModalFrame } from '@cerdas/shell';
 
     let { open = $bindable(false), google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID || '', onSwitchToLogin } = $props();
 
@@ -50,16 +51,12 @@
     // Lock/unlock body scroll
     $effect(() => {
         if (open) {
-            document.body.style.overflow = 'hidden';
             /** @type {any} */
             const w = window;
             if (google_client_id && w.google) {
                 setTimeout(initGSI, 10);
             }
-        } else {
-            document.body.style.overflow = '';
         }
-        return () => { document.body.style.overflow = ''; };
     });
 
     onMount(() => {
@@ -100,77 +97,112 @@
     async function handleGoogleCallback(response) {
         try {
             const payload = JSON.parse(atob(response.credential.split('.')[1]));
-            const data = await apiFetch('/auth/check-email', {
-                method: 'POST',
-                body: JSON.stringify({ email: payload.email })
-            });
-            if (data.exists) {
-                errors = { general: 'Email ini sudah terdaftar. Silakan login menggunakan akun yang ada.' };
-                return;
-            }
-            pendingGoogleInfo = { name: payload.name||'', email: payload.email||'', picture: payload.picture||'', token: response.credential };
+            pendingGoogleInfo = {
+                credential: response.credential,
+                name: payload.name || '',
+                email: payload.email || '',
+                picture: payload.picture || ''
+            };
             showGooglePopup = true;
-        } catch (e) {
-            errors = { general: 'Gagal memproses akun Google. Coba lagi.' };
+        } catch {
+            errors = { google: 'Gagal memproses akun Google. Coba lagi.' };
         }
     }
 
-    function confirmGoogle() {
+    function confirmGoogleReg() {
         if (!pendingGoogleInfo) return;
-        credential    = pendingGoogleInfo.token;
-        nama_lengkap  = pendingGoogleInfo.name  || nama_lengkap;
-        email         = pendingGoogleInfo.email  || email;
-        googlePic     = pendingGoogleInfo.picture || null;
-        usingGoogle   = true;
-        password      = '';       // tidak dipakai untuk submit, googlePassword yang dipakai
-        errors        = {};
-        showGooglePopup   = false;
+        nama_lengkap = pendingGoogleInfo.name;
+        email = pendingGoogleInfo.email;
+        googlePic = pendingGoogleInfo.picture;
+        credential = pendingGoogleInfo.credential;
+        usingGoogle = true;
+        showGooglePopup = false;
+        errors = {};
+    }
+
+    function cancelGoogleReg() {
+        showGooglePopup = false;
         pendingGoogleInfo = null;
     }
 
     function cancelGoogle() {
-        usingGoogle = false; credential = ''; googlePic = null;
-        email = ''; nama_lengkap = ''; googlePassword = '';
+        usingGoogle = false;
+        credential = '';
+        googlePic = null;
+        if (!photoPreview) photo = null;
     }
 
-    /** @param {any} e */
-    const handlePhotoChange = (e) => {
-        const file = e.target.files[0];
-        if (file) { photo = file; photoPreview = URL.createObjectURL(file); }
-    };
+    /** @param {Event} e */
+    function handlePhotoChange(e) {
+        const target = /** @type {HTMLInputElement} */ (e.target);
+        if (target.files && target.files[0]) {
+            photo = target.files[0];
+            const reader = new FileReader();
+            reader.onload = (ev) => { if (ev.target) photoPreview = /** @type {string} */ (ev.target.result); };
+            reader.readAsDataURL(photo);
+        } else {
+            photo = null;
+            photoPreview = null;
+        }
+    }
 
-    /** @param {any} e */
-    async function submit(e) {
+    import { login } from '../lib/stores/auth.js';
+
+    /** @param {Event} e */
+    async function handleSubmit(e) {
         e.preventDefault();
         errors = {};
+        
+        // Manual validation client-side
+        if (!nama_lengkap.trim()) errors.nama_lengkap = 'Nama lengkap wajib diisi';
+        if (!email.trim()) errors.email = 'Email wajib diisi';
+        if (!telepon.trim()) errors.telepon = 'No WhatsApp wajib diisi';
+        if (!usingGoogle && !password) errors.password = 'Kata sandi wajib diisi';
+        if (!usingGoogle && !photo) errors.photo = 'Foto profil wajib diunggah';
 
-        // Validasi password wajib (baik manual maupun Google)
-        const usedPassword = usingGoogle ? googlePassword : password;
-        if (!usedPassword || usedPassword.length < 6) {
-            errors = { general: 'Kata sandi minimal 6 karakter.' };
-            return;
-        }
+        if (Object.keys(errors).length > 0) return;
 
         processing = true;
-        const fd = new FormData();
-        fd.append('nama_lengkap', nama_lengkap);
-        fd.append('email',        email);
-        fd.append('telepon',      telepon);
-        fd.append('credential',   credential);
-        fd.append('password',     usedPassword);
-        if (photo) fd.append('photo', photo);
+
+        const formData = new FormData();
+        formData.append('nama_lengkap', nama_lengkap);
+        formData.append('email', email);
+        formData.append('telepon', telepon);
+        formData.append('role', 'agent');
+        
+        if (usingGoogle) {
+            formData.append('token', credential);
+            if (googlePassword) formData.append('password', googlePassword); // opsional password manual
+            if (photo) formData.append('photo', photo); // jika ada yg dioverride manual
+        } else {
+            formData.append('password', password);
+            if (photo) formData.append('photo', photo);
+        }
 
         try {
-            await apiFetch('/agent/register', { method: 'POST', body: fd });
-            if (usingGoogle) {
-                // Google langsung aktif — tutup & redirect
-                closeModal();
+            const res = await fetch(url('/api/register', true), { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            if (res.ok && data.user) {
+                // Berhasil
+                if (usingGoogle) {
+                    // Google langsung login & auto-verify
+                    if (data.token) login(data.token, data.user);
+                    closeModal();
+                    navigate('/agent/dashboard');
+                } else {
+                    // Manual form: perlu verifikasi email, tunjukkan halaman sukses
+                    successEmail = email;
+                }
             } else {
-                // Email biasa — tampilkan halaman verifikasi email
-                successEmail = email;
+                if (res.status === 422) {
+                    errors = data.errors || { general: data.message };
+                } else {
+                    errors = { general: data.message || 'Gagal mendaftar' };
+                }
             }
         } catch (err) {
-            errors = { general: /** @type {any} */(err).message || 'Pendaftaran gagal. Coba lagi.' };
+            errors = { general: 'Terjadi kesalahan jaringan' };
         } finally {
             processing = false;
         }
@@ -180,262 +212,197 @@
     function handleOverlayKey(e) { if (e.key === 'Escape') closeModal(); }
 </script>
 
-
-
-{#if open}
-<!-- Google Confirm Sub-Modal -->
-{#if showGooglePopup && pendingGoogleInfo}
-    <div class="g-confirm-overlay" transition:fade={{ duration:150 }}>
-        <div class="g-confirm-box" transition:scale={{ duration:200, start:0.95 }}>
-            <div class="g-confirm-icon">
-                <svg viewBox="0 0 24 24" width="28" height="28">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-            </div>
-            <h3>Daftar dengan Google?</h3>
-            <p>Data dari akun berikut akan digunakan untuk mengisi formulir.</p>
-            <div class="g-confirm-account">
-                {#if pendingGoogleInfo.picture}
-                    <img src={pendingGoogleInfo.picture} alt="" referrerpolicy="no-referrer" />
-                {:else}
-                    <div class="g-confirm-avatar-ph"></div>
-                {/if}
-                <div>
-                    <span class="g-confirm-name">{pendingGoogleInfo.name}</span>
-                    <span class="g-confirm-email">{pendingGoogleInfo.email}</span>
+<AuthModalFrame
+    open={open}
+    onClose={closeModal}
+    mode="register"
+    title="Daftar Agen Properti"
+    subtitle="Pasang iklan properti dan dapatkan pembeli lebih cepat"
+>
+    <!-- Google Confirm Sub-Modal -->
+    {#if showGooglePopup && pendingGoogleInfo}
+        <div class="g-confirm-overlay" transition:fade={{ duration:150 }}>
+            <div class="g-confirm-box" transition:scale={{ duration:200, start:0.95 }}>
+                <div class="g-confirm-icon">
+                    <span class="material-symbols-rounded">person_add</span>
                 </div>
-            </div>
-            <div class="g-confirm-btns">
-                <button class="g-btn-cancel" onclick={() => { showGooglePopup = false; pendingGoogleInfo = null; }}>Batal</button>
-                <button class="g-btn-ok" onclick={confirmGoogle}>Ya, Gunakan Akun Ini</button>
-            </div>
-        </div>
-    </div>
-{/if}
-
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="modal-overlay" onclick={closeModal} onkeydown={handleOverlayKey} role="presentation" transition:fade={{ duration:200 }}>
-    <!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
-    <div class="modal-box" onclick={(e) => e.stopPropagation()} onkeydown={(e) => e.stopPropagation()} tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="reg-modal-title" transition:scale={{ duration:250, start:0.96 }}>
-
-        <!-- LEFT DECORATIVE PANEL -->
-        <div class="modal-left">
-            <div class="modal-left-inner">
-                <a href={url('/')} class="modal-brand">
-                    <img src={url('/images/logo-new.png')} alt="CerdasLiving" class="modal-logo" />
+                <h3>Konfirmasi Google</h3>
+                <p>Gunakan akun Google berikut untuk mempercepat pendaftaran?</p>
+                <div class="g-confirm-account">
+                    {#if pendingGoogleInfo.picture}
+                        <img src={pendingGoogleInfo.picture} alt="" referrerpolicy="no-referrer" />
+                    {:else}
+                        <div class="g-confirm-avatar-ph"></div>
+                    {/if}
                     <div>
-                        <div class="modal-brand-name">CerdasLiving</div>
-                        <div class="modal-brand-tag">Smart Property, Better Living</div>
+                        <span class="g-confirm-name">{pendingGoogleInfo.name}</span>
+                        <span class="g-confirm-email">{pendingGoogleInfo.email}</span>
                     </div>
-                </a>
-                <div class="modal-left-headline">
-                    Pasang Iklan <br/><span>Properti Gratis</span>
                 </div>
-                <div class="modal-left-desc">
-                    Bergabung bersama ribuan agen profesional dan jangkau jutaan pencari properti di seluruh Indonesia.
-                </div>
-                <div class="modal-left-features">
-                    <div class="lf-item"><span class="material-symbols-rounded">check_circle</span> Gratis tanpa biaya</div>
-                    <div class="lf-item"><span class="material-symbols-rounded">check_circle</span> Jangkauan jutaan pembeli</div>
-                    <div class="lf-item"><span class="material-symbols-rounded">check_circle</span> AI Property Analytics</div>
-                    <div class="lf-item"><span class="material-symbols-rounded">check_circle</span> Dashboard agen profesional</div>
-                </div>
-                <!-- Decorative illustration -->
-                <div class="modal-left-deco">
-                    <svg viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="20" y="70" width="60" height="70" rx="4" fill="rgba(255,255,255,0.15)"/>
-                        <rect x="30" y="55" width="40" height="20" rx="4" fill="rgba(255,255,255,0.1)"/>
-                        <polygon points="50,35 80,55 20,55" fill="rgba(255,255,255,0.2)"/>
-                        <rect x="90" y="50" width="80" height="90" rx="4" fill="rgba(255,255,255,0.15)"/>
-                        <rect x="105" y="30" width="50" height="25" rx="4" fill="rgba(255,255,255,0.1)"/>
-                        <polygon points="130,10 170,30 90,30" fill="rgba(255,255,255,0.2)"/>
-                        <rect x="35" y="100" width="12" height="40" rx="2" fill="rgba(255,255,255,0.25)"/>
-                        <rect x="53" y="100" width="12" height="40" rx="2" fill="rgba(255,255,255,0.25)"/>
-                        <rect x="110" y="80" width="15" height="60" rx="2" fill="rgba(255,255,255,0.25)"/>
-                        <rect x="135" y="80" width="15" height="60" rx="2" fill="rgba(255,255,255,0.25)"/>
-                        <circle cx="160" cy="30" r="15" fill="rgba(255,220,80,0.3)" stroke="rgba(255,220,80,0.5)" stroke-width="2"/>
-                        <circle cx="20" cy="20" r="8" fill="rgba(255,255,255,0.15)"/>
-                    </svg>
+                <div class="g-confirm-btns">
+                    <button class="g-btn-cancel" onclick={cancelGoogleReg}>Batal</button>
+                    <button class="g-btn-ok" onclick={confirmGoogleReg}>
+                        <span class="material-symbols-rounded">check</span> Gunakan
+                    </button>
                 </div>
             </div>
         </div>
+    {/if}
 
-        <!-- RIGHT FORM PANEL -->
-        <div class="modal-right">
-            <button class="modal-close" onclick={closeModal} aria-label="Tutup">
-                <span class="material-symbols-rounded">close</span>
-            </button>
+    <div class="modal-form-wrap">
+        {#if successEmail}
+            <div class="success-wrap" in:fade>
+                <div class="success-icon"><span class="material-symbols-rounded">mark_email_read</span></div>
+                <h3>Pendaftaran Berhasil!</h3>
+                <p>Silakan periksa email <strong>{successEmail}</strong> untuk link verifikasi akun Anda. Anda bisa login setelah email diverifikasi.</p>
+                <button type="button" class="btn-submit" style="margin-top:20px" onclick={() => { closeModal(); onSwitchToLogin?.(); }}>
+                    Login Sekarang
+                </button>
+            </div>
+        {:else}
 
-            <div class="modal-form-wrap">
-                <h2 id="reg-modal-title">Daftar Akun Baru</h2>
-                <p class="modal-subtitle">Bergabunglah sebagai agen properti CerdasLiving</p>
+            {#if errors.google || errors.general}
+                <div class="form-alert alert-danger">
+                    <span class="material-symbols-rounded">error</span> {errors.google || errors.general}
+                </div>
+            {/if}
 
-                {#if errors.general}
-                    <div class="form-alert">
-                        <span class="material-symbols-rounded">error</span>
-                        {errors.general}
+            <form onsubmit={handleSubmit}>
+                {#if !usingGoogle}
+                    {#if google_client_id}
+                        <div id="g_id_signin_reg_modal" style="display:flex; justify-content:center; margin-bottom: 16px;"></div>
+                        <div class="form-divider"><span>atau daftar dengan email</span></div>
+                    {/if}
+                {:else}
+                    <div class="google-badge">
+                        <div class="google-badge-left">
+                            {#if googlePic}
+                                <img src={googlePic} alt="" class="google-badge-pic" referrerpolicy="no-referrer"/>
+                            {:else}
+                                <div class="google-badge-ph"><span class="material-symbols-rounded">person</span></div>
+                            {/if}
+                            <div>
+                                <div class="google-badge-lbl">
+                                    <svg viewBox="0 0 16 16" width="12" height="12"><path fill="#4285F4" d="M15.04 8.17c0-.52-.05-1.02-.13-1.5H8v2.84h3.94c-.17.91-.69 1.68-1.47 2.2v1.85h2.38c1.39-1.28 2.19-3.16 2.19-5.39z"/><path fill="#34A853" d="M8 16c1.98 0 3.64-.66 4.85-1.78l-2.38-1.85c-.66.44-1.49.7-2.47.7-1.9 0-3.51-1.28-4.09-3.01H1.46v1.91C2.66 14.17 5.15 16 8 16z"/><path fill="#FBBC05" d="M3.91 9.06c-.15-.44-.23-.91-.23-1.4s.08-.96.23-1.4V4.35H1.46C.97 5.31.7 6.38.7 7.5s.27 2.19.76 3.15l2.45-1.59z"/><path fill="#EA4335" d="M8 3.18c1.07 0 2.03.37 2.79 1.09l2.09-2.09C11.64.97 9.98.18 8 .18 5.15.18 2.66 2 1.46 4.53l2.45 1.59C4.49 4.47 6.1 3.18 8 3.18z"/></svg>
+                                    Terkoneksi Google
+                                </div>
+                                <div class="google-badge-email">{email}</div>
+                            </div>
+                        </div>
+                        <button type="button" class="google-badge-x" onclick={cancelGoogle} aria-label="Hapus"><span class="material-symbols-rounded">close</span></button>
                     </div>
                 {/if}
 
-                {#if successEmail}
-                    <!-- Halaman sukses: cek email verifikasi -->
-                    <div class="verify-success">
-                        <div class="verify-icon">
-                            <span class="material-symbols-rounded">mark_email_read</span>
+                <!-- Row 1: Nama Lengkap saja -->
+                <div class="form-group">
+                    <label for="rm-nama">Nama Lengkap <span class="req">*</span></label>
+                    <input id="rm-nama" type="text" placeholder="Nama lengkap Anda" bind:value={nama_lengkap} required class={errors.nama_lengkap ? 'err' : ''} />
+                    {#if errors.nama_lengkap}<span class="err-msg">{errors.nama_lengkap}</span>{/if}
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="rm-email">Alamat Email <span class="req">*</span></label>
+                    <div class="input-icon-wrap">
+                        <span class="material-symbols-rounded i-ico">mail</span>
+                        <input id="rm-email" type="email" placeholder="nama@email.com" bind:value={email} required disabled={usingGoogle} class="{errors.email ? 'err' : ''} {usingGoogle ? 'disabled' : ''} has-icon" />
+                        {#if usingGoogle}<span class="verified-ico"><span class="material-symbols-rounded">verified</span></span>{/if}
+                    </div>
+                    {#if errors.email}<span class="err-msg">{errors.email}</span>{/if}
+                </div>
+
+                <!-- Telepon -->
+                <div class="form-group">
+                    <label for="rm-telp">No. WhatsApp / Telepon <span class="req">*</span></label>
+                    <div class="input-icon-wrap">
+                        <span class="material-symbols-rounded i-ico">phone_iphone</span>
+                        <input id="rm-telp" type="text" placeholder="Cth: 081234567890" bind:value={telepon} required class="{errors.telepon ? 'err' : ''} has-icon" />
+                    </div>
+                    {#if errors.telepon}<span class="err-msg">{errors.telepon}</span>{/if}
+                </div>
+
+                <!-- Password -->
+                {#if !usingGoogle}
+                    <!-- Manual register: password wajib -->
+                    <div class="form-group">
+                        <label for="rm-pass">Kata Sandi <span class="req">*</span></label>
+                        <div class="input-icon-wrap">
+                            <span class="material-symbols-rounded i-ico">lock</span>
+                            <input id="rm-pass" type={showPassword ? 'text' : 'password'} placeholder="Minimal 6 karakter" bind:value={password} required class="{errors.password ? 'err' : ''} has-icon has-right-ico" />
+                            <button type="button" class="pass-eye" onclick={() => showPassword = !showPassword} aria-label="Tampilkan kata sandi">
+                                <span class="material-symbols-rounded">{showPassword ? 'visibility_off' : 'visibility'}</span>
+                            </button>
                         </div>
-                        <h3>Cek Email Anda!</h3>
-                        <p>Link verifikasi telah dikirim ke:</p>
-                        <div class="verify-email-box">{successEmail}</div>
-                        <p class="verify-hint">Silakan buka email Anda dan klik link verifikasi untuk mengaktifkan akun. Periksa juga folder <strong>Spam</strong> jika email tidak ditemukan.</p>
-                        <button type="button" class="btn-submit" onclick={closeModal}>
-                            <span class="material-symbols-rounded">check_circle</span>
-                            Mengerti
-                        </button>
+                        {#if errors.password}<span class="err-msg">{errors.password}</span>{/if}
                     </div>
                 {:else}
-                <form onsubmit={submit}>
-                    <!-- Google Section -->
-                    {#if !usingGoogle}
-                        {#if google_client_id}
-                            <div id="g_id_signin_reg_modal" style="display:flex; justify-content:center; margin-bottom: 16px;"></div>
-                            <div class="form-divider"><span>atau daftar dengan email</span></div>
-                        {/if}
-                    {:else}
-                        <div class="google-badge">
-                            <div class="google-badge-left">
-                                {#if googlePic}
-                                    <img src={googlePic} alt="" class="google-badge-pic" referrerpolicy="no-referrer"/>
-                                {:else}
-                                    <div class="google-badge-ph"><span class="material-symbols-rounded">person</span></div>
-                                {/if}
-                                <div>
-                                    <div class="google-badge-lbl">
-                                        <svg viewBox="0 0 16 16" width="12" height="12"><path fill="#4285F4" d="M15.04 8.17c0-.52-.05-1.02-.13-1.5H8v2.84h3.94c-.17.91-.69 1.68-1.47 2.2v1.85h2.38c1.39-1.28 2.19-3.16 2.19-5.39z"/><path fill="#34A853" d="M8 16c1.98 0 3.64-.66 4.85-1.78l-2.38-1.85c-.66.44-1.49.7-2.47.7-1.9 0-3.51-1.28-4.09-3.01H1.46v1.91C2.66 14.17 5.15 16 8 16z"/><path fill="#FBBC05" d="M3.91 9.06c-.15-.44-.23-.91-.23-1.4s.08-.96.23-1.4V4.35H1.46C.97 5.31.7 6.38.7 7.5s.27 2.19.76 3.15l2.45-1.59z"/><path fill="#EA4335" d="M8 3.18c1.07 0 2.03.37 2.79 1.09l2.09-2.09C11.64.97 9.98.18 8 .18 5.15.18 2.66 2 1.46 4.53l2.45 1.59C4.49 4.47 6.1 3.18 8 3.18z"/></svg>
-                                        Terkoneksi Google
-                                    </div>
-                                    <div class="google-badge-email">{email}</div>
-                                </div>
-                            </div>
-                            <button type="button" class="google-badge-x" onclick={cancelGoogle} aria-label="Hapus"><span class="material-symbols-rounded">close</span></button>
-                        </div>
-                    {/if}
-
-                    <!-- Row 1: Nama Lengkap saja -->
+                    <!-- Google register: password opsional untuk login via email juga -->
                     <div class="form-group">
-                        <label for="rm-nama">Nama Lengkap <span class="req">*</span></label>
-                        <input id="rm-nama" type="text" placeholder="Nama lengkap Anda" bind:value={nama_lengkap} required class={errors.nama_lengkap ? 'err' : ''} />
-                        {#if errors.nama_lengkap}<span class="err-msg">{errors.nama_lengkap}</span>{/if}
-                    </div>
-
-                    <!-- Email -->
-                    <div class="form-group">
-                        <label for="rm-email">Alamat Email <span class="req">*</span></label>
+                        <label for="rm-gpass">
+                            Buat Kata Sandi <span class="req">*</span>
+                            <span class="pass-hint-badge">Untuk login via email & password</span>
+                        </label>
                         <div class="input-icon-wrap">
-                            <span class="material-symbols-rounded i-ico">mail</span>
-                            <input id="rm-email" type="email" placeholder="nama@email.com" bind:value={email} required disabled={usingGoogle} class="{errors.email ? 'err' : ''} {usingGoogle ? 'disabled' : ''} has-icon" />
-                            {#if usingGoogle}<span class="verified-ico"><span class="material-symbols-rounded">verified</span></span>{/if}
+                            <span class="material-symbols-rounded i-ico">lock</span>
+                            <input id="rm-gpass" type={showGooglePassword ? 'text' : 'password'} placeholder="Minimal 6 karakter" bind:value={googlePassword} class="{errors.password ? 'err' : ''} has-icon has-right-ico" />
+                            <button type="button" class="pass-eye" onclick={() => showGooglePassword = !showGooglePassword} aria-label="Tampilkan kata sandi">
+                                <span class="material-symbols-rounded">{showGooglePassword ? 'visibility_off' : 'visibility'}</span>
+                            </button>
                         </div>
-                        {#if errors.email}<span class="err-msg">{errors.email}</span>{/if}
+                        <span class="pass-privacy-note"><span class="material-symbols-rounded" style="font-size:13px">security</span> Ini memungkinkan Anda login dengan email & password tanpa Google.</span>
+                        {#if errors.password}<span class="err-msg">{errors.password}</span>{/if}
                     </div>
+                {/if}
 
-                    <!-- Telepon -->
-                    <div class="form-group">
-                        <label for="rm-telp">No. WhatsApp / Telepon <span class="req">*</span></label>
-                        <div class="input-icon-wrap">
-                            <span class="material-symbols-rounded i-ico">phone_iphone</span>
-                            <input id="rm-telp" type="text" placeholder="Cth: 081234567890" bind:value={telepon} required class="{errors.telepon ? 'err' : ''} has-icon" />
-                        </div>
-                        {#if errors.telepon}<span class="err-msg">{errors.telepon}</span>{/if}
-                    </div>
-
-                    <!-- Password -->
-                    {#if !usingGoogle}
-                        <!-- Manual register: password wajib -->
-                        <div class="form-group">
-                            <label for="rm-pass">Kata Sandi <span class="req">*</span></label>
-                            <div class="input-icon-wrap">
-                                <span class="material-symbols-rounded i-ico">lock</span>
-                                <input id="rm-pass" type={showPassword ? 'text' : 'password'} placeholder="Minimal 6 karakter" bind:value={password} required class="{errors.password ? 'err' : ''} has-icon has-right-ico" />
-                                <button type="button" class="pass-eye" onclick={() => showPassword = !showPassword} aria-label="Tampilkan kata sandi">
-                                    <span class="material-symbols-rounded">{showPassword ? 'visibility_off' : 'visibility'}</span>
-                                </button>
-                            </div>
-                            {#if errors.password}<span class="err-msg">{errors.password}</span>{/if}
-                        </div>
-                    {:else}
-                        <!-- Google register: password opsional untuk login via email juga -->
-                        <div class="form-group">
-                            <label for="rm-gpass">
-                                Buat Kata Sandi <span class="req">*</span>
-                                <span class="pass-hint-badge">Untuk login via email & password</span>
-                            </label>
-                            <div class="input-icon-wrap">
-                                <span class="material-symbols-rounded i-ico">lock</span>
-                                <input id="rm-gpass" type={showGooglePassword ? 'text' : 'password'} placeholder="Minimal 6 karakter" bind:value={googlePassword} class="{errors.password ? 'err' : ''} has-icon has-right-ico" />
-                                <button type="button" class="pass-eye" onclick={() => showGooglePassword = !showGooglePassword} aria-label="Tampilkan kata sandi">
-                                    <span class="material-symbols-rounded">{showGooglePassword ? 'visibility_off' : 'visibility'}</span>
-                                </button>
-                            </div>
-                            <span class="pass-privacy-note"><span class="material-symbols-rounded" style="font-size:13px">security</span> Ini memungkinkan Anda login dengan email & password tanpa Google.</span>
-                            {#if errors.password}<span class="err-msg">{errors.password}</span>{/if}
-                        </div>
-                    {/if}
-
-                    <!-- Foto Profil -->
-                    <div class="form-group">
-                        <label for="rm-photo">Foto Profil {#if !usingGoogle || !googlePic}<span class="req">*</span>{/if}</label>
-                        <div class="photo-row">
-                            <div class="photo-preview">
-                                {#if photoPreview}
-                                    <img src={photoPreview} alt="Preview" />
-                                {:else if usingGoogle && googlePic}
-                                    <img src={googlePic} alt="Google" referrerpolicy="no-referrer" />
-                                {:else}
-                                    <span class="material-symbols-rounded">person_add</span>
-                                {/if}
-                            </div>
-                            <label class="photo-btn">
-                                <span class="material-symbols-rounded">cloud_upload</span>
-                                {photo ? photo.name.substring(0, 20) + '...' : 'Pilih Foto'}
-                                <input type="file" accept="image/jpeg,image/png,image/jpg" onchange={handlePhotoChange} style="display:none" />
-                            </label>
-                            {#if usingGoogle && googlePic && !photoPreview}
-                                <span class="photo-hint">Foto Google digunakan</span>
+                <!-- Foto Profil -->
+                <div class="form-group">
+                    <label for="rm-photo">Foto Profil {#if !usingGoogle || !googlePic}<span class="req">*</span>{/if}</label>
+                    <div class="photo-row">
+                        <div class="photo-preview">
+                            {#if photoPreview}
+                                <img src={photoPreview} alt="Preview" />
+                            {:else if usingGoogle && googlePic}
+                                <img src={googlePic} alt="Google" referrerpolicy="no-referrer" />
                             {:else}
-                                <span class="photo-hint">JPG/PNG maks 5MB</span>
+                                <span class="material-symbols-rounded">person_add</span>
                             {/if}
                         </div>
-                        {#if errors.photo}<span class="err-msg">{errors.photo}</span>{/if}
-                    </div>
-
-                    <!-- Submit -->
-                    <button type="submit" class="btn-submit" disabled={processing}>
-                        {#if processing}
-                            <span class="material-symbols-rounded spin">refresh</span> Menyimpan...
-                        {:else if usingGoogle}
-                            Daftar Sekarang &amp; Pasang Iklan
-                            <span class="material-symbols-rounded">arrow_forward</span>
+                        <label class="photo-btn">
+                            <span class="material-symbols-rounded">cloud_upload</span>
+                            {photo ? photo.name.substring(0, 20) + '...' : 'Pilih Foto'}
+                            <input type="file" accept="image/jpeg,image/png,image/jpg" onchange={handlePhotoChange} style="display:none" />
+                        </label>
+                        {#if usingGoogle && googlePic && !photoPreview}
+                            <span class="photo-hint">Foto Google digunakan</span>
                         {:else}
-                            <span class="material-symbols-rounded">mark_email_read</span>
-                            Kirim Email Verifikasi
+                            <span class="photo-hint">JPG/PNG maks 5MB</span>
                         {/if}
-                    </button>
+                    </div>
+                    {#if errors.photo}<span class="err-msg">{errors.photo}</span>{/if}
+                </div>
 
-                    <p class="login-cta">
-                        Sudah punya akun?
-                        <button type="button" class="link-btn" onclick={() => { closeModal(); onSwitchToLogin?.(); }}>Masuk sekarang</button>
-                    </p>
-                    <p class="tos-note">Dengan mendaftar, Anda menyetujui <a href={url('/syarat-ketentuan')} target="_blank">Syarat &amp; Ketentuan</a> CerdasLiving.</p>
-                </form>
-                {/if}
-            </div>
-        </div>
+                <!-- Submit -->
+                <button type="submit" class="btn-submit" disabled={processing}>
+                    {#if processing}
+                        <span class="material-symbols-rounded spin">refresh</span> Menyimpan...
+                    {:else if usingGoogle}
+                        Daftar Sekarang &amp; Pasang Iklan
+                        <span class="material-symbols-rounded">arrow_forward</span>
+                    {:else}
+                        <span class="material-symbols-rounded">mark_email_read</span>
+                        Kirim Email Verifikasi
+                    {/if}
+                </button>
+
+                <p class="login-cta">
+                    Sudah punya akun?
+                    <button type="button" class="link-btn" onclick={() => { closeModal(); onSwitchToLogin?.(); }}>Masuk sekarang</button>
+                </p>
+                <p class="tos-note">Dengan mendaftar, Anda menyetujui <a href={url('/syarat-ketentuan')} target="_blank">Syarat &amp; Ketentuan</a> CerdasLiving.</p>
+            </form>
+        {/if}
     </div>
-</div>
-{/if}
+</AuthModalFrame>
 
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
@@ -484,170 +451,57 @@
     }
     .g-btn-ok:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(201,168,76,0.45); }
 
-    /* ─── Main Modal ─── */
-    .modal-overlay {
-        position: fixed; inset: 0; z-index: 10000;
-        background: rgba(15,10,5,0.6);
-        backdrop-filter: blur(6px);
-        display: flex; align-items: center; justify-content: center;
-        padding: 16px;
-    }
-
-    .modal-box {
-        display: flex;
-        width: 100%; max-width: 840px;
-        max-height: 92vh;
-        background: #fff;
-        border-radius: 24px;
-        overflow: hidden;
-        box-shadow: 0 32px 80px rgba(26,22,17,0.30), 0 8px 24px rgba(26,22,17,0.12);
-        position: relative;
-    }
-
-    /* ─── Left Decorative Panel ─── */
-    .modal-left {
-        width: 300px; flex-shrink: 0;
-        background: linear-gradient(155deg, #1A1611 0%, #3D2B1A 40%, #C0553A 75%, #C9A84C 100%);
-        position: relative;
-        display: flex; flex-direction: column;
-    }
-
-    .modal-left-inner {
-        padding: 32px 28px;
-        display: flex; flex-direction: column;
-        height: 100%;
-        position: relative; z-index: 2;
-    }
-
-    .modal-brand {
-        display: flex; align-items: center; gap: 10px;
-        text-decoration: none; margin-bottom: 32px;
-    }
-
-    .modal-logo {
-        width: 52px; height: 52px; object-fit: contain;
-        background: rgba(255,255,255,0.15);
-        border-radius: 12px; padding: 4px;
-    }
-
-    .modal-brand-name {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.2rem; font-weight: 800;
-        color: #fff; line-height: 1.1;
-    }
-
-    .modal-brand-tag {
-        font-size: 0.65rem; font-weight: 700;
-        color: rgba(255,255,255,0.7);
-        text-transform: uppercase; letter-spacing: 1px;
-    }
-
-    .modal-left-headline {
-        font-size: 1.6rem; font-weight: 800;
-        color: #fff; line-height: 1.2; margin-bottom: 12px;
-    }
-
-    .modal-left-headline span { color: #FFD66B; }
-
-    .modal-left-desc {
-        font-size: 0.82rem; color: rgba(255,255,255,0.8);
-        line-height: 1.6; margin-bottom: 24px;
-    }
-
-    .modal-left-features { display: flex; flex-direction: column; gap: 10px; }
-
-    .lf-item {
-        display: flex; align-items: center; gap: 8px;
-        font-size: 0.82rem; color: rgba(255,255,255,0.9); font-weight: 500;
-    }
-
-    .lf-item .material-symbols-rounded { font-size: 18px; color: #FFD66B; flex-shrink: 0; }
-
-    .modal-left-deco {
-        margin-top: auto; opacity: 0.5;
-        display: flex; justify-content: center;
-    }
-
-    /* ─── Right Form Panel ─── */
-    .modal-right {
-        flex: 1; overflow-y: auto;
-        display: flex; flex-direction: column;
-        position: relative;
-        background: #fff;
-    }
-
-    .modal-close {
-        position: absolute; top: 16px; right: 16px;
-        width: 36px; height: 36px;
-        background: #f5f5f5; border: none; border-radius: 10px;
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
-        color: #6B6B6B; z-index: 10; transition: all 0.2s;
-    }
-    .modal-close:hover { background: #fee2e2; color: #dc2626; }
-    .modal-close .material-symbols-rounded { font-size: 18px; }
-
     .modal-form-wrap {
-        padding: 32px 36px 32px;
         display: flex; flex-direction: column; gap: 0;
-        flex: 1;
+        flex: 1; padding: 16px 0;
     }
 
-    .modal-form-wrap h2 {
-        font-size: 1.5rem; font-weight: 800; color: #1a1611;
-        margin: 0 0 4px;
-        font-family: 'Playfair Display', serif;
+    /* Google connection badge */
+    .google-badge {
+        display: flex; align-items: center; justify-content: space-between;
+        background: #FAF8F5; border: 1.5px solid #E8E0D0;
+        border-radius: 12px; padding: 10px 14px; margin-bottom: 20px;
     }
+    .google-badge-left { display: flex; align-items: center; gap: 12px; }
+    .google-badge-pic { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+    .google-badge-ph { width: 38px; height: 38px; border-radius: 50%; background: #e2e8f0; display:flex; align-items:center; justify-content:center; color:#64748b; }
+    .google-badge-ph .material-symbols-rounded { font-size: 20px; }
+    .google-badge-lbl { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; color: #4A4A4A; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+    .google-badge-email { font-size: 0.82rem; color: #6B6B6B; font-weight: 500; }
+    .google-badge-x {
+        background: none; border: none; cursor: pointer; color: #9c9080;
+        width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+        border-radius: 50%; transition: all 0.2s;
+    }
+    .google-badge-x:hover { background: #fee2e2; color: #dc2626; }
+    .google-badge-x .material-symbols-rounded { font-size: 16px; }
 
-    .modal-subtitle { font-size: 0.84rem; color: #9c9080; margin: 0 0 20px; }
+    /* Success Message */
+    .success-wrap { text-align: center; padding: 40px 20px; }
+    .success-icon { width: 64px; height: 64px; background: #dcfce7; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .success-icon .material-symbols-rounded { font-size: 32px; }
+    .success-wrap h3 { font-size: 1.4rem; color: #1e293b; margin: 0 0 10px; }
+    .success-wrap p { font-size: 0.95rem; color: #475569; line-height: 1.6; }
 
     .form-alert {
         display: flex; align-items: center; gap: 8px;
-        background: #FEF2F2; border: 1px solid #FECACA; color: #B91C1C;
         border-radius: 10px; padding: 10px 14px;
         font-size: 0.83rem; font-weight: 500; margin-bottom: 16px;
+        border: 1px solid transparent;
     }
     .form-alert .material-symbols-rounded { font-size: 18px; flex-shrink: 0; }
+    .alert-danger { background: #FEF2F2; border-color: #FECACA; color: #B91C1C; }
 
-    /* Google button CSS removed (unused) */
-
-    .form-divider {
-        display: flex; align-items: center; gap: 12px;
-        margin-bottom: 16px;
-    }
+    .form-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
     .form-divider::before,.form-divider::after { content:''; flex:1; height:1px; background:#ebe8e1; }
     .form-divider span { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; font-weight: 600; white-space: nowrap; }
 
-    /* Google badge */
-    .google-badge {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 12px; background: rgba(201,168,76,0.07);
-        border: 1.5px solid rgba(201,168,76,0.28); border-radius: 12px;
-        padding: 10px 14px; margin-bottom: 16px;
-    }
-    .google-badge-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    .google-badge-pic { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
-    .google-badge-ph {
-        width: 36px; height: 36px; border-radius: 50%; background: #F5E6BE;
-        display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .google-badge-ph .material-symbols-rounded { font-size: 18px; color: #C9A84C; }
-    .google-badge-lbl {
-        display: flex; align-items: center; gap: 4px;
-        font-size: 0.75rem; font-weight: 700; color: #9C6914;
-    }
-    .google-badge-email { font-size: 0.78rem; color: #7A5010; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .google-badge-x {
-        background: none; border: 1px solid rgba(201,168,76,0.25); border-radius: 8px;
-        width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
-        cursor: pointer; color: #C9A84C; transition: all 0.2s; flex-shrink: 0;
-    }
-    .google-badge-x:hover { background: rgba(192,85,58,0.08); border-color: rgba(192,85,58,0.3); color: #C0553A; }
-    .google-badge-x .material-symbols-rounded { font-size: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; position: relative; }
+    .form-group label { font-size: 0.78rem; font-weight: 600; color: #4A4A4A; display:flex; align-items:center; gap:6px; }
+    .form-group label .req { color: #dc2626; }
 
-    /* Form */
-    .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
-    .form-group label { font-size: 0.78rem; font-weight: 600; color: #4A4A4A; }
-    .req { color: #ef4444; }
+    .pass-hint-badge { background: #f1f5f9; color: #475569; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+    .pass-privacy-note { font-size: 0.75rem; color: #64748b; display: flex; align-items: center; gap: 4px; margin-top: 4px; }
 
     .form-group input {
         width: 100%; padding: 10px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px;
@@ -655,18 +509,16 @@
         outline: none; transition: all 0.2s; box-sizing: border-box;
     }
     .form-group input:focus { border-color: #C9A84C; box-shadow: 0 0 0 3px rgba(201,168,76,0.12); }
-    .form-group input.err { border-color: #ef4444; }
-    .form-group input.disabled { background: #f8f8f8; color: #6B6B6B; cursor: not-allowed; }
+    .form-group input.err { border-color: #fca5a5; background: #FEF2F2; }
+    .form-group input:disabled { background: #f8fafc; color: #64748b; cursor: not-allowed; border-color: #e2e8f0; }
 
     .input-icon-wrap { position: relative; }
-    .i-ico {
-        position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-        font-size: 17px; color: #B8A882; pointer-events: none;
-    }
+    .i-ico { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 17px; color: #B8A882; pointer-events: none; }
     .input-icon-wrap input.has-icon { padding-left: 38px; }
     .input-icon-wrap input.has-right-ico { padding-right: 40px; }
-    .verified-ico { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: #10b981; }
-    .verified-ico .material-symbols-rounded { font-size: 17px; }
+
+    .verified-ico { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #10b981; display:flex; align-items:center; }
+    .verified-ico .material-symbols-rounded { font-size: 18px; font-variation-settings: 'FILL' 1; }
 
     .pass-eye {
         position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
@@ -675,32 +527,28 @@
     .pass-eye:hover { color: #1a1611; }
     .pass-eye .material-symbols-rounded { font-size: 17px; }
 
-    .err-msg { font-size: 0.75rem; color: #dc2626; font-weight: 500; }
+    .err-msg { font-size: 0.75rem; color: #dc2626; margin-top: 2px; }
 
-    /* Photo */
-    .photo-row { display: flex; align-items: center; gap: 14px; }
+    /* Photo Upload */
+    .photo-row { display: flex; align-items: center; gap: 12px; }
     .photo-preview {
-        width: 58px; height: 58px; border-radius: 50%; border: 2px dashed #cbd5e1;
-        display: flex; align-items: center; justify-content: center;
-        overflow: hidden; background: #f8fafc; flex-shrink: 0;
+        width: 46px; height: 46px; border-radius: 50%; background: #f1f5f9;
+        display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid #e2e8f0;
     }
     .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
-    .photo-preview .material-symbols-rounded { font-size: 1.5rem; color: #94a3b8; }
-    .photo-btn {
-        display: inline-flex; align-items: center; gap: 6px;
-        padding: 8px 14px; border-radius: 10px; cursor: pointer;
-        background: #f1f5f9; border: 1.5px solid #e2e8f0;
-        color: #475569; font-size: 0.78rem; font-weight: 600;
-        transition: all 0.2s; font-family: inherit; white-space: nowrap;
-    }
-    .photo-btn:hover { background: #e2e8f0; }
-    .photo-btn .material-symbols-rounded { font-size: 16px; }
-    .photo-hint { font-size: 0.7rem; color: #94a3b8; }
+    .photo-preview .material-symbols-rounded { color: #94a3b8; font-size: 20px; }
 
-    /* Submit */
+    .photo-btn {
+        background: #fff; border: 1.5px solid #e2e8f0; padding: 8px 12px; border-radius: 8px;
+        font-size: 0.8rem; font-weight: 600; color: #475569; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .photo-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
+    .photo-btn .material-symbols-rounded { font-size: 16px; color: #64748b; }
+    .photo-hint { font-size: 0.72rem; color: #94a3b8; }
+
     .btn-submit {
         width: 100%; display: flex; align-items: center; justify-content: center;
-        gap: 8px; padding: 13px; margin-top: 4px;
+        gap: 8px; padding: 13px; margin-top: 6px;
         background: linear-gradient(135deg, #C9A84C, #E0B850);
         color: white; border: none; border-radius: 12px;
         font-family: inherit; font-size: 0.95rem; font-weight: 700;
@@ -711,13 +559,11 @@
     .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
     .btn-submit .material-symbols-rounded { font-size: 18px; }
 
-    .login-cta {
-        text-align: center; font-size: 0.84rem; color: #64748b; margin-top: 14px; margin-bottom: 4px;
-    }
+    .login-cta { text-align: center; font-size: 0.85rem; margin-top: 20px; margin-bottom: 8px; color: #6B6B6B; }
     .link-btn {
         background: none; border: none; cursor: pointer;
-        color: #C9A84C; font-size: 0.84rem; font-weight: 700;
-        font-family: inherit; padding: 0;
+        color: #C9A84C; font-size: 0.85rem; font-weight: 700;
+        font-family: inherit; padding: 0; text-decoration: none;
     }
     .link-btn:hover { text-decoration: underline; }
 

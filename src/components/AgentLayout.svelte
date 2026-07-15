@@ -26,7 +26,7 @@
 
   let menuItems = [
     { href: '/agent/dashboard',   icon: 'home',              label: 'Dashboard'    },
-    { href: '/agent/iklan',       icon: 'campaign',          label: 'Iklan Saya'   },
+    { href: '/agent/iklan',       icon: 'campaign',          label: 'Daftar Iklan'   },
     { href: '/agent/iklan/tambah',icon: 'add_circle',        label: 'Pasang Iklan' },
     { href: '/agent/profil',      icon: 'person',            label: 'Profil Saya'  },
   ]
@@ -35,6 +35,7 @@
     if (typeof window === 'undefined') return false
     const path = window.location.pathname
     if (href === '/agent/dashboard') return path === href || path.startsWith('/agent/dashboard')
+    if (href === '/agent/iklan') return path === '/agent/iklan' || (path.startsWith('/agent/iklan') && !path.startsWith('/agent/iklan/tambah'))
     return path.startsWith(href)
   }
 </script>

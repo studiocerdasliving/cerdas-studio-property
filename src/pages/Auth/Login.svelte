@@ -4,6 +4,7 @@
     import { onMount } from 'svelte';
     import { url } from '../../lib/url.svelte.js';
     import { apiFetch } from '../../lib/api.js';
+    import { login } from '../../lib/stores/auth.js';
 
     let { google_client_id = import.meta.env.VITE_GOOGLE_CLIENT_ID || '', captcha_image, flash, flash_type, errors = {} } = $props();
 
@@ -88,17 +89,17 @@
         if (!pendingCredential || googleProcessing) return;
         googleProcessing = true;
         try {
-            const res = await apiFetch('/auth/google', {
+            const data = await apiFetch('/auth/google', {
                 method: 'POST',
                 body: JSON.stringify({ token: pendingCredential })
             });
 
-            if (res.token) {
-                login(res.token, res.user);
-                if (res.user?.akses_level === 'Agent' || res.user?.id_staff) {
+            if (data.token) {
+                login(data.token, data.user);
+                if (data.user?.akses_level === 'Agent' || data.user?.id_staff) {
                     window.location.href = url('/agent/dashboard');
                 } else {
-                    window.location.href = studioUrl + '/studio/hub?token=' + res.token;
+                    window.location.href = studioUrl + '/studio/hub';
                 }
             } else {
                 cancelGoogleLogin();
@@ -202,18 +203,12 @@
             body: JSON.stringify({ email, password })
         }).then(data => {
             if (data.token) {
-                localStorage.setItem('auth_token', data.token);
+                login(data.token, data.user);
                 if (data.user) {
                     localStorage.setItem('user', JSON.stringify(data.user));
-                    if (data.user.role === 'admin') {
-                        navigate('/admin/dashboard');
-                    } else if (data.user.akses_level === 'Agent' || data.user.id_staff) {
-                        navigate('/agent/dashboard');
-                    } else {
-                        window.location.href = studioUrl + '/studio/hub?token=' + data.token;
-                    }
+                    navigate('/agent/dashboard');
                 } else {
-                    window.location.href = studioUrl + '/studio/hub?token=' + data.token;
+                    navigate('/agent/dashboard');
                 }
             } else {
                 errors = { global: "Gagal memproses login" };
@@ -282,20 +277,6 @@
 
 <div class="login-wrapper">
     <div class="login-container">
-        <div class="login-header">
-            <a href={url('/')} class="login-brand">
-                <img
-                    src={url('/images/logo-new.png')}
-                    alt="CerdasLiving Logo"
-                    class="login-logo-img"
-                />
-                <div class="login-brand-text">
-                    <span class="login-brand-name">CerdasLiving</span>
-                    <span class="login-brand-tagline">Smart Property, Better Living</span>
-                </div>
-            </a>
-            <p class="login-brand-desc">Masuk ke portal properti &amp; lifestyle</p>
-        </div>
 
         <div class="login-body">
             <!-- Flash Alert -->

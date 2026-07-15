@@ -24,11 +24,11 @@
     try {
       // Kita bisa ambil data dashboard untuk tahu data profil staff saat ini
       const res = await apiFetch('/agent/dashboard');
-      if (res.agent) {
-        name = res.agent.nama_staff || '';
-        whatsapp = res.agent.telepon_staff || '';
-        email = res.agent.email || '';
+      if (res.staff) {
+        name = res.staff.nama_staff || '';
+        whatsapp = res.staff.whatsapp || res.staff.telepon || '';
       }
+      email = res.email || '';
       if (res.stats) {
         stats = res.stats;
       }
@@ -50,7 +50,7 @@
     try {
       await apiFetch('/agent/profil', {
         method: 'PUT',
-        body: JSON.stringify({ nama: name, telepon: whatsapp })
+        body: JSON.stringify({ nama_staff: name, telepon: whatsapp, whatsapp: whatsapp })
       });
       successMsg = 'Profil berhasil diperbarui!';
     } catch(error) {
